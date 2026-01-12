@@ -315,15 +315,16 @@ export default function Plantillas() {
                 Variables disponibles
               </Label>
               <div className="flex flex-wrap gap-2">
-                {VARIABLES.map(v => (
+                {variablesDB.map(v => (
                   <Button
-                    key={v.key}
+                    key={v.id}
                     variant="outline"
                     size="sm"
                     className="text-xs"
-                    onClick={() => insertarVariable(v.key)}
+                    onClick={() => insertarVariable(`{${v.clave}}`)}
+                    title={v.descripcion}
                   >
-                    {v.key}
+                    {`{${v.clave}}`}
                   </Button>
                 ))}
               </div>
