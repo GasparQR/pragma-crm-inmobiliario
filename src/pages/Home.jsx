@@ -1,0 +1,253 @@
+import { useState } from "react";
+import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import KPICard from "@/components/crm/KPICard";
+import ConsultaForm from "@/components/crm/ConsultaForm";
+import WhatsAppSender from "@/components/crm/WhatsAppSender";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { 
+  Plus, TrendingUp, Clock, Handshake, CheckCircle2, 
+  Kanban, List, Users, MessageSquare, BarChart3, Settings,
+  Calendar, AlertCircle, ArrowRight, Zap
+} from "lucide-react";
+import moment from "moment";
+
+export default function Home() {
+  const [showForm, setShowForm] = useState(false);
+  const [showWhatsApp, setShowWhatsApp] = useState(false);
+  const [selectedConsulta, setSelectedConsulta] = useState(null);
+
+  const { data: consultas = [], refetch } = useQuery({
+    queryKey: ['consultas-home'],
+    queryFn: () => base44.entities.Consulta.list("-created_date", 1000)
+  });
+
+  const today = moment();
+  
+  // KPIs
+  const nuevasHoy = consultas.filter(c => moment(c.fechaConsulta).isSame(today, 'day')).length;
+  const nuevas7d = consultas.filter(c => moment(c.fechaConsulta).isAfter(today.clone().subtract(7, 'days'))).length;
+  
+  const pendientesHoy = consultas.filter(c => 
+    c.proximoSeguimiento && 
+    moment(c.proximoSeguimiento).isSame(today, 'day') &&
+    !["Concretado", "Perdido"].includes(c.etapa)
+  );
+  
+  const vencidos = consultas.filter(c => 
+    c.proximoSeguimiento && 
+    moment(c.proximoSeguimiento).isBefore(today, 'day') &&
+    !["Concretado", "Perdido"].includes(c.etapa)
+  );
+
+  const enNegociacion = consultas.filter(c => c.etapa === "Negociacion").length;
+  
+  const concretados7d = consultas.filter(c => 
+    c.etapa === "Concretado" && 
+    moment(c.updated_date).isAfter(today.clone().subtract(7, 'days'))
+  ).length;
+  
+  const concretados30d = consultas.filter(c => 
+    c.etapa === "Concretado" && 
+    moment(c.updated_date).isAfter(today.clone().subtract(30, 'days'))
+  ).length;
+
+  const handleWhatsApp = (consulta) => {
+    setSelectedConsulta(consulta);
+    setShowWhatsApp(true);
+  };
+
+  const TILES = [
+    { title: "Pipeline", desc: "Vista Kanban", icon: Kanban, page: "Pipeline", color: "bg-blue-500" },
+    { title: "Consultas", desc: "Lista completa", icon: List, page: "Consultas", color: "bg-cyan-500" },
+    { title: "Hoy", desc: "Seguimientos", icon: Calendar, page: "Hoy", color: "bg-amber-500", badge: pendientesHoy.length + vencidos.length },
+    { title: "Contactos", desc: "Gestión", icon: Users, page: "Contactos", color: "bg-purple-500" },
+    { title: "Plantillas", desc: "WhatsApp", icon: MessageSquare, page: "Plantillas", color: "bg-emerald-500" },
+    { title: "Reportes", desc: "Analytics", icon: BarChart3, page: "Reportes", color: "bg-orange-500" },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100/50 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">
+              Bienvenido 👋
+            </h1>
+            <p className="text-slate-500 mt-1">Aquí está tu resumen de hoy</p>
+          </div>
+          <Button 
+            onClick={() => setShowForm(true)} 
+            size="lg"
+            className="gap-2 bg-slate-900 hover:bg-slate-800 shadow-lg"
+          >
+            <Plus className="w-5 h-5" />
+            Nueva Consulta
+          </Button>
+        </div>
+
+        {/* KPIs */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <KPICard
+            title="Nuevas Hoy"
+            value={nuevasHoy}
+            subtitle={`${nuevas7d} en 7 días`}
+            icon={TrendingUp}
+            className="hover:scale-105 transition-transform"
+          />
+          <KPICard
+            title="Seguimientos Hoy"
+            value={pendientesHoy.length}
+            subtitle={vencidos.length > 0 ? `${vencidos.length} vencidos` : "Todo al día"}
+            icon={vencidos.length > 0 ? AlertCircle : Clock}
+            className={vencidos.length > 0 ? "ring-2 ring-red-200" : ""}
+          />
+          <KPICard
+            title="En Negociación"
+            value={enNegociacion}
+            subtitle="Cerca del cierre"
+            icon={Handshake}
+          />
+          <KPICard
+            title="Concretados"
+            value={concretados7d}
+            subtitle={`${concretados30d} en 30 días`}
+            icon={CheckCircle2}
+          />
+        </div>
+
+        {/* Acciones Rápidas */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <Card className="border-2 border-slate-900 bg-slate-900 text-white hover:shadow-xl transition-all">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-white">
+                <Zap className="w-5 h-5" />
+                Acción rápida
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => setShowForm(true)}
+                className="w-full bg-white text-slate-900 hover:bg-slate-100 gap-2"
+                size="lg"
+              >
+                <Plus className="w-5 h-5" />
+                Crear Nueva Consulta
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-2 border-amber-200 bg-amber-50 hover:shadow-xl transition-all">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-amber-600" />
+                  Seguimientos Hoy
+                </span>
+                {(pendientesHoy.length + vencidos.length) > 0 && (
+                  <Badge className="bg-amber-600">{pendientesHoy.length + vencidos.length}</Badge>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Link to={createPageUrl("Hoy")}>
+                <Button 
+                  variant="outline" 
+                  className="w-full gap-2 border-amber-300 hover:bg-amber-100"
+                  size="lg"
+                >
+                  Ver Seguimientos del Día
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Vencidos Urgentes */}
+        {vencidos.length > 0 && (
+          <Card className="border-red-200 bg-red-50/50">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-red-800">
+                <AlertCircle className="w-5 h-5" />
+                Seguimientos Vencidos ({vencidos.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {vencidos.slice(0, 3).map(c => (
+                  <div key={c.id} className="flex items-center justify-between bg-white p-3 rounded-lg">
+                    <div>
+                      <p className="font-medium text-slate-900">{c.contactoNombre}</p>
+                      <p className="text-sm text-slate-500">{c.productoConsultado}</p>
+                      <p className="text-xs text-red-600 mt-1">
+                        Vencido: {moment(c.proximoSeguimiento).format("DD/MM")}
+                      </p>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleWhatsApp(c)}
+                      className="bg-[#25D366] hover:bg-[#20bd5a] text-white"
+                    >
+                      WhatsApp
+                    </Button>
+                  </div>
+                ))}
+                {vencidos.length > 3 && (
+                  <Link to={createPageUrl("Hoy")}>
+                    <Button variant="ghost" className="w-full">
+                      Ver todos ({vencidos.length})
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Accesos Directos */}
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Accesos Rápidos</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {TILES.map(tile => (
+              <Link key={tile.page} to={createPageUrl(tile.page)}>
+                <Card className="hover:shadow-lg hover:scale-105 transition-all cursor-pointer group">
+                  <CardContent className="p-6 text-center">
+                    <div className={`w-12 h-12 mx-auto rounded-xl ${tile.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                      <tile.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <h3 className="font-semibold text-slate-900">{tile.title}</h3>
+                      {tile.badge > 0 && (
+                        <Badge className="bg-red-500">{tile.badge}</Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">{tile.desc}</p>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <ConsultaForm
+        open={showForm}
+        onOpenChange={setShowForm}
+        onSave={refetch}
+      />
+
+      <WhatsAppSender
+        open={showWhatsApp}
+        onOpenChange={setShowWhatsApp}
+        consulta={selectedConsulta}
+        onMessageSent={refetch}
+      />
+    </div>
+  );
+}
