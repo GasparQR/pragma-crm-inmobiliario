@@ -6,7 +6,7 @@ import PipelineColumn from "@/components/crm/PipelineColumn";
 import ConsultaForm from "@/components/crm/ConsultaForm";
 import WhatsAppSender from "@/components/crm/WhatsAppSender";
 import { Button } from "@/components/ui/button";
-import { Plus, Filter } from "lucide-react";
+import { Plus, Filter, ArrowLeft } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 
@@ -76,6 +76,12 @@ export default function Pipeline() {
       <div className="bg-white border-b border-slate-100 px-6 py-4">
         <div className="max-w-full mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
+            <Link to={createPageUrl("Home")}>
+              <Button variant="ghost" className="gap-2 mb-2 -ml-2">
+                <ArrowLeft className="w-4 h-4" />
+                Volver
+              </Button>
+            </Link>
             <h1 className="text-2xl font-bold text-slate-900">Pipeline</h1>
             <p className="text-slate-500">{consultasFiltradas.length} consultas activas</p>
           </div>

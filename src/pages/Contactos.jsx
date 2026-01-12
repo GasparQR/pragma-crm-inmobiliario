@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Edit, Phone, MessageCircle, MapPin, User, Tag } from "lucide-react";
+import { Plus, Search, Edit, Phone, MessageCircle, MapPin, User, Tag, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import moment from "moment";
 
@@ -143,6 +143,12 @@ export default function Contactos() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
+            <Link to={createPageUrl("Home")}>
+              <Button variant="ghost" className="gap-2 mb-2 -ml-2">
+                <ArrowLeft className="w-4 h-4" />
+                Volver
+              </Button>
+            </Link>
             <h1 className="text-2xl font-bold text-slate-900">Contactos</h1>
             <p className="text-slate-500">{contactosFiltrados.length} contactos</p>
           </div>

@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
-  LayoutDashboard, Kanban, List, Users, MessageSquare, 
+  LayoutDashboard, Kanban, List, Users, MessageSquare, Calendar,
   Menu, X, ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,9 +10,10 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "sonner";
 
 const NAV_ITEMS = [
-  { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
+  { name: "Home", icon: LayoutDashboard, page: "Home" },
   { name: "Pipeline", icon: Kanban, page: "Pipeline" },
   { name: "Consultas", icon: List, page: "Consultas" },
+  { name: "Hoy", icon: Calendar, page: "Hoy" },
   { name: "Contactos", icon: Users, page: "Contactos" },
   { name: "Plantillas", icon: MessageSquare, page: "Plantillas" },
 ];

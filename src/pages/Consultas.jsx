@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { 
   Plus, Search, MessageCircle, Calendar, CheckCircle2, XCircle, 
-  MoreHorizontal, Filter, Phone, ArrowUpDown
+  MoreHorizontal, Filter, Phone, ArrowUpDown, ArrowLeft
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import moment from "moment";
@@ -138,6 +138,12 @@ export default function Consultas() {
         <div className="max-w-7xl mx-auto flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
+              <Link to={createPageUrl("Home")}>
+                <Button variant="ghost" className="gap-2 mb-2 -ml-2">
+                  <ArrowLeft className="w-4 h-4" />
+                  Volver
+                </Button>
+              </Link>
               <h1 className="text-2xl font-bold text-slate-900">Consultas</h1>
               <p className="text-slate-500">{consultasFiltradas.length} resultados</p>
             </div>

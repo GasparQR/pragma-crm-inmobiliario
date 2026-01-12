@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   Users, TrendingUp, CheckCircle2, XCircle, Clock, 
-  MessageCircle, Calendar, ArrowRight, Plus
+  MessageCircle, Calendar, ArrowRight, Plus, ArrowLeft
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Link } from "react-router-dom";
@@ -84,7 +84,13 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+            <Link to={createPageUrl("Home")}>
+              <Button variant="ghost" className="gap-2 mb-2 -ml-2">
+                <ArrowLeft className="w-4 h-4" />
+                Volver
+              </Button>
+            </Link>
+            <h1 className="text-2xl font-bold text-slate-900">Dashboard Avanzado</h1>
             <p className="text-slate-500">Resumen de tu actividad comercial</p>
           </div>
           <Button onClick={() => setShowForm(true)} className="gap-2">

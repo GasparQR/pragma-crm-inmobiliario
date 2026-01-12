@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Eye, Copy, MessageCircle, Sparkles } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, Copy, MessageCircle, Sparkles, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -147,6 +147,12 @@ export default function Plantillas() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
+            <Link to={createPageUrl("Home")}>
+              <Button variant="ghost" className="gap-2 mb-2 -ml-2">
+                <ArrowLeft className="w-4 h-4" />
+                Volver
+              </Button>
+            </Link>
             <h1 className="text-2xl font-bold text-slate-900">Plantillas WhatsApp</h1>
             <p className="text-slate-500">Gestiona tus mensajes predefinidos</p>
           </div>
