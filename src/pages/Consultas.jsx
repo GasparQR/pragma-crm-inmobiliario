@@ -66,14 +66,14 @@ export default function Consultas() {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Consulta.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['consultas-list'] });
+      queryClient.invalidateQueries({ queryKey: ['consultas-list', currentUser?.email] });
     }
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Consulta.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['consultas-list'] });
+      queryClient.invalidateQueries({ queryKey: ['consultas-list', currentUser?.email] });
       toast.success("Consulta eliminada");
     }
   });

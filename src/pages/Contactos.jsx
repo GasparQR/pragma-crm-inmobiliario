@@ -59,8 +59,8 @@ export default function Contactos() {
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Contacto.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contactos'] });
-      toast.success("Contacto creado");
+       queryClient.invalidateQueries({ queryKey: ['contactos', currentUser?.email] });
+       toast.success("Contacto creado");
       resetForm();
     }
   });
@@ -68,8 +68,8 @@ export default function Contactos() {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Contacto.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contactos'] });
-      toast.success("Contacto actualizado");
+       queryClient.invalidateQueries({ queryKey: ['contactos', currentUser?.email] });
+       toast.success("Contacto actualizado");
       resetForm();
     }
   });
@@ -77,8 +77,8 @@ export default function Contactos() {
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Contacto.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contactos'] });
-      toast.success("Contacto eliminado");
+       queryClient.invalidateQueries({ queryKey: ['contactos', currentUser?.email] });
+       toast.success("Contacto eliminado");
     }
   });
 

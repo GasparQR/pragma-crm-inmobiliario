@@ -79,8 +79,8 @@ export default function Plantillas() {
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.PlantillaWhatsApp.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['plantillas'] });
-      toast.success("Plantilla creada");
+       queryClient.invalidateQueries({ queryKey: ['plantillas', currentUser?.email] });
+       toast.success("Plantilla creada");
       resetForm();
     }
   });
@@ -88,8 +88,8 @@ export default function Plantillas() {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.PlantillaWhatsApp.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['plantillas'] });
-      toast.success("Plantilla actualizada");
+       queryClient.invalidateQueries({ queryKey: ['plantillas', currentUser?.email] });
+       toast.success("Plantilla actualizada");
       resetForm();
     }
   });
@@ -97,8 +97,8 @@ export default function Plantillas() {
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.PlantillaWhatsApp.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['plantillas'] });
-      toast.success("Plantilla eliminada");
+       queryClient.invalidateQueries({ queryKey: ['plantillas', currentUser?.email] });
+       toast.success("Plantilla eliminada");
     }
   });
 
