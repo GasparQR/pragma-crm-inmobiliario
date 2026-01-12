@@ -1,14 +1,50 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Bell, User, Shield, Database, Trash2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ArrowLeft, Bell, User, Shield, Database, Trash2, Users, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
+import { useCurrentUser } from "@/components/hooks/useCurrentUser";
 
 export default function Ajustes() {
+  const { data: currentUser } = useCurrentUser();
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState("user");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleInviteUser = async (e) => {
+    e.preventDefault();
+    if (!inviteEmail) {
+      toast.error("Por favor ingresa un email");
+      return;
+    }
+
+    // Validar que solo admins pueden invitar admins
+    if (inviteRole === "admin" && currentUser?.role !== "admin") {
+      toast.error("Solo los administradores pueden invitar otros administradores");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await base44.users.inviteUser(inviteEmail, inviteRole);
+      toast.success(`Invitación enviada a ${inviteEmail}`);
+      setInviteEmail("");
+      setInviteRole("user");
+    } catch (error) {
+      toast.error("Error al enviar la invitación");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50/50 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -24,8 +60,53 @@ export default function Ajustes() {
           <p className="text-slate-500 mt-1">Configuración de la aplicación</p>
         </div>
 
-        {/* Perfil */}
-        <Card>
+        {/* Usuarios */}
+         <Card>
+           <CardHeader>
+             <CardTitle className="flex items-center gap-2">
+               <Users className="w-5 h-5" />
+               Gestión de usuarios
+             </CardTitle>
+             <CardDescription>Invita a otros usuarios al equipo</CardDescription>
+           </CardHeader>
+           <CardContent className="space-y-4">
+             <form onSubmit={handleInviteUser} className="space-y-4">
+               <div className="space-y-2">
+                 <Label>Email del usuario</Label>
+                 <Input
+                   type="email"
+                   placeholder="usuario@email.com"
+                   value={inviteEmail}
+                   onChange={(e) => setInviteEmail(e.target.value)}
+                 />
+               </div>
+               <div className="space-y-2">
+                 <Label>Rol</Label>
+                 <Select value={inviteRole} onValueChange={setInviteRole} disabled={currentUser?.role !== "admin"}>
+                   <SelectTrigger>
+                     <SelectValue />
+                   </SelectTrigger>
+                   <SelectContent>
+                     <SelectItem value="user">Usuario</SelectItem>
+                     {currentUser?.role === "admin" && (
+                       <SelectItem value="admin">Administrador</SelectItem>
+                     )}
+                   </SelectContent>
+                 </Select>
+                 {currentUser?.role !== "admin" && (
+                   <p className="text-xs text-slate-400">Solo puedes invitar usuarios regulares</p>
+                 )}
+               </div>
+               <Button type="submit" disabled={isLoading} className="w-full gap-2">
+                 {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                 Enviar invitación
+               </Button>
+             </form>
+           </CardContent>
+         </Card>
+
+         {/* Perfil */}
+         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="w-5 h-5" />
