@@ -13,16 +13,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Edit, Phone, MessageCircle, MapPin, User, Tag, ArrowLeft, Trash2 } from "lucide-react";
+import { Plus, Search, Edit, Phone, MessageCircle, MapPin, User, Tag, ArrowLeft, Trash2, ListCheck } from "lucide-react";
 import { toast } from "sonner";
 import moment from "moment";
 import DetalleContactoDialog from "@/components/crm/DetalleContactoDialog";
+import DialogSelectorListasWhatsApp from "@/components/crm/DialogSelectorListasWhatsApp";
 
 const CANALES = ["Instagram", "WhatsApp", "MercadoLibre", "Referido", "Local", "Otro"];
 
 export default function Contactos() {
   const [showForm, setShowForm] = useState(false);
   const [showDetalleDialog, setShowDetalleDialog] = useState(false);
+  const [showListasDialog, setShowListasDialog] = useState(false);
   const [selectedContacto, setSelectedContacto] = useState(null);
   const [search, setSearch] = useState("");
   const [filtroCanal, setFiltroCanal] = useState("todos");
@@ -291,6 +293,18 @@ export default function Contactos() {
                       )}
                       <Button
                         size="sm"
+                        variant="outline"
+                        className="h-8 px-2 text-[#25D366] border-[#25D366] hover:bg-[#25D366] hover:text-white"
+                        onClick={() => {
+                          setSelectedContacto(contacto);
+                          setShowListasDialog(true);
+                        }}
+                      >
+                        <ListCheck className="w-4 h-4 mr-1" />
+                        Lista
+                      </Button>
+                      <Button
+                        size="sm"
                         className="bg-[#25D366] hover:bg-[#20bd5a] text-white h-8 w-8 p-0"
                         onClick={() => {
                           const phone = formatPhoneNumber(contacto.whatsapp);
@@ -413,6 +427,14 @@ export default function Contactos() {
         contacto={selectedContacto}
         open={showDetalleDialog}
         onOpenChange={setShowDetalleDialog}
+      />
+
+      <DialogSelectorListasWhatsApp
+        open={showListasDialog}
+        onOpenChange={setShowListasDialog}
+        contactoId={selectedContacto?.id}
+        contactoWhatsapp={selectedContacto?.whatsapp}
+        onMessageSent={refetch}
       />
     </div>
   );

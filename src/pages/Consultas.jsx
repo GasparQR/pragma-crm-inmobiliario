@@ -12,13 +12,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { 
   Plus, Search, MessageCircle, Calendar, CheckCircle2, XCircle, 
-  MoreHorizontal, Filter, Phone, ArrowUpDown, ArrowLeft, Trash2
+  MoreHorizontal, Filter, Phone, ArrowUpDown, ArrowLeft, Trash2, ListCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import moment from "moment";
 import ConsultaForm from "@/components/crm/ConsultaForm";
 import WhatsAppSender from "@/components/crm/WhatsAppSender";
 import DetalleConsultaDialog from "@/components/crm/DetalleConsultaDialog";
+import DialogSelectorListasWhatsApp from "@/components/crm/DialogSelectorListasWhatsApp";
 import { toast } from "sonner";
 
 const etapaColors = {
@@ -41,6 +42,7 @@ export default function Consultas() {
   const [showForm, setShowForm] = useState(false);
   const [showWhatsApp, setShowWhatsApp] = useState(false);
   const [showDetalleDialog, setShowDetalleDialog] = useState(false);
+  const [showListasDialog, setShowListasDialog] = useState(false);
   const [selectedConsulta, setSelectedConsulta] = useState(null);
   const [search, setSearch] = useState("");
   const [filtroEtapa, setFiltroEtapa] = useState("todas");
@@ -340,6 +342,15 @@ export default function Consultas() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedConsulta(consulta);
+                              setShowListasDialog(true);
+                            }}>
+                              <ListCheck className="w-4 h-4 mr-2" />
+                              Enviar Lista WhatsApp
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => handleSeguimiento(consulta, 1)}>
                               <Calendar className="w-4 h-4 mr-2" />
                               Seguimiento mañana
@@ -435,6 +446,15 @@ export default function Consultas() {
         open={showDetalleDialog}
         onOpenChange={setShowDetalleDialog}
         onSave={refetch}
+      />
+
+      <DialogSelectorListasWhatsApp
+        open={showListasDialog}
+        onOpenChange={setShowListasDialog}
+        contactoId={selectedConsulta?.contactoId}
+        contactoWhatsapp={selectedConsulta?.contactoWhatsapp}
+        consultaId={selectedConsulta?.id}
+        onMessageSent={refetch}
       />
     </div>
   );
