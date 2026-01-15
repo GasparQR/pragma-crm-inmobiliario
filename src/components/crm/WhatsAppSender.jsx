@@ -66,7 +66,8 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
 
   const formatPhoneNumber = (phone) => {
     if (!phone) return "";
-    let clean = phone.replace(/\D/g, "");
+    // Remove all non-numeric characters
+    let clean = phone.replace(/[^0-9]/g, "");
     if (!clean.startsWith("54")) {
       clean = "54" + clean;
     }
@@ -82,7 +83,9 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
 
   const handleOpenWhatsApp = async () => {
     const phone = formatPhoneNumber(consulta.contactoWhatsapp);
-    const url = `https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`;
+    // Normalize text to avoid emoji encoding issues
+    const normalizedMessage = mensaje.normalize('NFC');
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(normalizedMessage)}`;
     window.open(url, "_blank");
   };
 
