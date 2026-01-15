@@ -81,6 +81,29 @@ export default function VentaForm({ open, onOpenChange, consulta, onVentaCreada,
         moneda: consulta.moneda || "USD",
         notas: ""
       });
+    } else if (open && !ventaExistente && !consulta) {
+      setFormData({
+        estado: "Borrador",
+        fecha: new Date().toISOString().split('T')[0],
+        contactoId: "",
+        consultaId: "",
+        nombreSnapshot: "",
+        productoSnapshot: "",
+        modelo: "",
+        capacidad: "",
+        color: "",
+        proveedorId: "",
+        proveedorTexto: "",
+        proveedorNombreSnapshot: "",
+        marketplace: "WhatsApp",
+        porUsuarioId: "",
+        costo: "",
+        comision: 0,
+        venta: "",
+        canje: 0,
+        moneda: "USD",
+        notas: ""
+      });
     }
   }, [consulta, ventaExistente, open]);
 
