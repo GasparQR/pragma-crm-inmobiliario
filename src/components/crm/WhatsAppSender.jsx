@@ -68,7 +68,8 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
     if (!phone) return "";
     // Remove all non-numeric characters
     let clean = phone.replace(/[^0-9]/g, "");
-    if (!clean.startsWith("54")) {
+    // Ensure it starts with 54 (Argentina country code) if not already present
+    if (clean.length > 0 && !clean.startsWith("54")) {
       clean = "54" + clean;
     }
     return clean;
@@ -83,10 +84,22 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
 
   const handleOpenWhatsApp = async () => {
     const phone = formatPhoneNumber(consulta.contactoWhatsapp);
-    // Normalize text to avoid emoji encoding issues
-    const normalizedMessage = mensaje.normalize('NFC');
+    // Normalize text to avoid emoji encoding issues - ensure it's a string first
+    const normalizedMessage = String(mensaje || '').normalize('NFC');
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(normalizedMessage)}`;
     window.open(url, "_blank");
+
+    // Registrar el envío
+    try {
+      await base44.entities.EnvioWhatsApp.create({
+        contactoId: consulta.contactoId,
+        consultaId: consulta.id,
+        contenidoEnviado: normalizedMessage,
+        accion: "AbrirWhatsApp",
+      });
+    } catch (error) {
+      console.error("Error al registrar envío:", error);
+    }
   };
 
   const handleMarkSent = async () => {
