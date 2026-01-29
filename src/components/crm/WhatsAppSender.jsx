@@ -155,7 +155,7 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 py-4">
           {/* Info del contacto */}
           <div className="bg-slate-50 rounded-xl p-4">
             <p className="font-semibold text-slate-900">{consulta.contactoNombre}</p>
@@ -197,7 +197,7 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
               value={mensaje}
               onChange={(e) => setMensaje(e.target.value)}
               rows={6}
-              className="resize-none"
+              className="resize-none w-full"
               placeholder="Escribe tu mensaje..."
             />
           </div>
