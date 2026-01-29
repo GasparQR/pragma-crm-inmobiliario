@@ -83,24 +83,34 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
   };
 
   const handleOpenWhatsApp = async () => {
-    const phone = formatPhoneNumber(consulta.contactoWhatsapp);
-    // Normalize text to avoid emoji encoding issues - ensure it's a string first
-    const normalizedMessage = String(mensaje || '').normalize('NFC');
-    const url = `https://wa.me/${phone}?text=${encodeURIComponent(normalizedMessage)}`;
-    window.open(url, "_blank");
+  const phone = formatPhoneNumber(consulta.contactoWhatsapp);
 
-    // Registrar el envío
-    try {
-      await base44.entities.EnvioWhatsApp.create({
-        contactoId: consulta.contactoId,
-        consultaId: consulta.id,
-        contenidoEnviado: normalizedMessage,
-        accion: "AbrirWhatsApp",
-      });
-    } catch (error) {
-      console.error("Error al registrar envío:", error);
-    }
-  };
+  // 1. Limpieza y normalización segura
+  const msg = String(mensaje || "")
+    .normalize("NFC")
+    // elimina caracteres de control invisibles (no rompe emojis)
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "");
+
+  // 2. Usar endpoint más tolerante + URLSearchParams
+  const url = new URL("https://api.whatsapp.com/send");
+  url.searchParams.set("phone", phone);
+  url.searchParams.set("text", msg);
+
+  // 3. Abrir WhatsApp
+  window.open(url.toString(), "_blank", "noopener,noreferrer");
+
+  // 4. Registrar el envío
+  try {
+    await base44.entities.EnvioWhatsApp.create({
+      contactoId: consulta.contactoId,
+      consultaId: consulta.id,
+      contenidoEnviado: msg,
+      accion: "AbrirWhatsApp",
+    });
+  } catch (error) {
+    console.error("Error al registrar envío:", error);
+  }
+};
 
   const handleMarkSent = async () => {
     setLoading(true);
