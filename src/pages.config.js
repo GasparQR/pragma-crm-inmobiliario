@@ -64,6 +64,8 @@ import Variables from './pages/Variables';
 import VentaDetalle from './pages/VentaDetalle';
 import Ventas from './pages/Ventas';
 import VentasDashboard from './pages/VentasDashboard';
+import ImportarVentas from './pages/ImportarVentas';
+import ExportarVentas from './pages/ExportarVentas';
 import __Layout from './Layout.jsx';
 
 
@@ -85,6 +87,8 @@ export const PAGES = {
     "VentaDetalle": VentaDetalle,
     "Ventas": Ventas,
     "VentasDashboard": VentasDashboard,
+    "ImportarVentas": ImportarVentas,
+    "ExportarVentas": ExportarVentas,
 }
 
 export const pagesConfig = {
