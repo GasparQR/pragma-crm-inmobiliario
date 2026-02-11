@@ -1,137 +1,137 @@
 // Utilidades de normalización para importación de ventas
 
-export function normalizeDate(dateString) {
-  if (!dateString) return { value: null, error: "Fecha vacía" };
-
-  let str = String(dateString).trim();
-
-  // Intentar convertir número de serie de Excel a fecha si se parece a uno.
-  // Los números de serie de Excel son generalmente enteros positivos.
-  const serialNum = parseFloat(str);
-  if (!isNaN(serialNum) && serialNum > 0 && serialNum < 60000 && String(serialNum) === str) {
-    // La fecha de origen de Excel es el 1 de enero de 1900 (serial 1).
-    // Sin embargo, Excel tiene un bug y considera 1900 como año bisiesto (añadiendo un 29 de febrero de 1900).
-    // Esto hace que todas las fechas a partir del 1 de marzo de 1900 estén un día desfasadas.
-    
-    // Empezamos con el 1 de enero de 1900 (que es el día 1 en Excel)
-    const excelEpoch = new Date('1900-01-01T00:00:00.000Z'); // Usar UTC para evitar problemas de zona horaria
-    let daysToAdd = serialNum - 1; // El serial 1 es el día 0 relativo a nuestro epoch
-
-    // Corregir el bug del año bisiesto de 1900 en Excel.
-    // Si el número de serie es 60 o más (es decir, 1 de marzo de 1900 o posterior),
-    // debemos restar un día para compensar el 29 de febrero de 1900 inexistente.
-    if (serialNum >= 60) {
-      daysToAdd--;
-    }
-
-    const date = new Date(excelEpoch.getTime() + daysToAdd * 24 * 60 * 60 * 1000);
-
-    if (!isNaN(date.getTime()) && date.getFullYear() >= 1900 && date.getFullYear() < 2100) {
-      return { value: date.toISOString().split('T')[0], error: null }; // Formato YYYY-MM-DD
-    } else {
-      return { value: dateString, error: "Número de serie de Excel inválido o fuera de rango razonable" };
-    }
+export function normalizeDate(dateInput) {
+  if (dateInput === null || dateInput === undefined || String(dateInput).trim() === "") {
+    return { value: null, error: "Fecha vacía" };
   }
 
-  // Intentar formato YYYY-MM-DD
-  if (/^\\d{4}-\\d{2}-\\d{2}$/.test(str)) {
-    const date = new Date(str + 'T00:00:00'); // Añadir T00:00:00 para asegurar el parsing correcto
-    if (!isNaN(date.getTime())) {
-      return { value: str, error: null };
-    }
+  // Si viene como Date real (algunos parsers de XLSX lo devuelven así)
+  if (dateInput instanceof Date && !isNaN(dateInput.getTime())) {
+    return { value: dateInput.toISOString().split("T")[0], error: null };
   }
 
-  // Intentar formato DD/MM/YYYY o DD-MM/YYYY (ej. Argentina)
-  const ddmmyyyyMatch = str.match(/^(\\d{1,2})[\\/\\-](\\d{1,2})[\\/\\-](\\d{4})$/);
-  if (ddmmyyyyMatch) {
-    const [, day, month, year] = ddmmyyyyMatch;
-    // Asumir DD/MM/YYYY. Añadir T00:00:00 para asegurar el parsing correcto.
-    const date = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T00:00:00`);
-    if (!isNaN(date.getTime())) {
-      return {
-        value: `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`,
-        error: null,
-        // Advertencia si el formato es ambiguo y podría interpretarse como MM/DD/YYYY
-        warning: (parseInt(day) > 12 && parseInt(month) <= 12) ? "Formato ambiguo (asumido DD/MM/YYYY)" : null
-      };
+  let str = String(dateInput).trim();
+
+  // --- Caso 1: serial de Excel (entero típico 1..60000) ---
+  // Acepta "45278", "45278.0", 45278
+  const maybeNum = Number(str);
+  const isExcelSerial = Number.isFinite(maybeNum) && maybeNum > 0 && maybeNum < 60000;
+
+  if (isExcelSerial && Number.isInteger(maybeNum)) {
+    // Excel epoch (1900 system)
+    const excelEpoch = new Date(Date.UTC(1899, 11, 30)); // 1899-12-30
+    let days = maybeNum;
+
+    // Ajuste bug Excel 1900 leap year
+    if (days >= 60) days -= 1;
+
+    const date = new Date(excelEpoch.getTime() + days * 86400 * 1000);
+    if (!isNaN(date.getTime()) && date.getUTCFullYear() >= 1900 && date.getUTCFullYear() < 2100) {
+      return { value: date.toISOString().split("T")[0], error: null };
+    }
+    return { value: str, error: "Número de serie de Excel inválido" };
+  }
+
+  // --- Caso 2: ISO Date (YYYY-MM-DD) ---
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+    // Validación real (evita 2023-99-99)
+    const d = new Date(str + "T00:00:00Z");
+    if (!isNaN(d.getTime())) return { value: str, error: null };
+  }
+
+  // --- Caso 3: ISO DateTime (YYYY-MM-DDTHH:mm:ss...) ---
+  if (/^\d{4}-\d{2}-\d{2}T/.test(str)) {
+    const d = new Date(str);
+    if (!isNaN(d.getTime())) return { value: d.toISOString().split("T")[0], error: null };
+  }
+
+  // --- Caso 4: DD/MM/YYYY o DD-MM-YYYY (Argentina) ---
+  const m = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (m) {
+    const day = m[1].padStart(2, "0");
+    const month = m[2].padStart(2, "0");
+    const year = m[3];
+
+    const iso = `${year}-${month}-${day}`;
+    const d = new Date(iso + "T00:00:00Z");
+    if (!isNaN(d.getTime())) {
+      const warning =
+        Number(day) <= 12 && Number(month) <= 12
+          ? "Formato ambiguo (asumido DD/MM/YYYY)"
+          : null;
+      return { value: iso, error: null, warning };
     }
   }
 
   return { value: str, error: "Formato de fecha inválido" };
 }
 
-export function normalizeNumber(numString) {
-  if (!numString && numString !== 0) return { value: 0, error: null };
-  
-  let str = String(numString).trim();
-  
-  // Limpiar símbolos de moneda
-  str = str.replace(/[$€US\s]/gi, '');
-  
-  // Manejar formatos: 1,400.50 o 1.400,50
-  const hasComma = str.includes(',');
-  const hasDot = str.includes('.');
-  
+export function normalizeNumber(numInput) {
+  if (numInput === null || numInput === undefined || String(numInput).trim() === "") {
+    return { value: 0, error: null };
+  }
+
+  let str = String(numInput).trim();
+
+  // Limpiar símbolos comunes sin romper "USDT"
+  // Saca: US$, USD, $, €, espacios
+  str = str.replace(/US\$/gi, "")
+           .replace(/\bUSD\b/gi, "")
+           .replace(/[$€\s]/g, "");
+
+  const hasComma = str.includes(",");
+  const hasDot = str.includes(".");
+
   if (hasComma && hasDot) {
-    // Detectar cuál es el separador decimal (el último)
-    const lastComma = str.lastIndexOf(',');
-    const lastDot = str.lastIndexOf('.');
-    
+    const lastComma = str.lastIndexOf(",");
+    const lastDot = str.lastIndexOf(".");
     if (lastComma > lastDot) {
-      // Formato europeo: 1.400,50
-      str = str.replace(/\./g, '').replace(',', '.');
+      // 1.400,50
+      str = str.replace(/\./g, "").replace(",", ".");
     } else {
-      // Formato americano: 1,400.50
-      str = str.replace(/,/g, '');
+      // 1,400.50
+      str = str.replace(/,/g, "");
     }
   } else if (hasComma) {
-    // Solo coma: podría ser decimal o miles
-    const parts = str.split(',');
+    const parts = str.split(",");
     if (parts.length === 2 && parts[1].length <= 2) {
-      // Probablemente decimal: 1400,50
-      str = str.replace(',', '.');
+      // 1400,50
+      str = str.replace(",", ".");
     } else {
-      // Miles: 1,400
-      str = str.replace(/,/g, '');
+      // 1,400
+      str = str.replace(/,/g, "");
     }
   }
-  
-  const num = parseFloat(str);
-  
-  if (isNaN(num)) {
-    return { value: str, error: "No es un número válido" };
-  }
-  
+
+  const num = Number(str);
+  if (!Number.isFinite(num)) return { value: 0, error: "No es un número válido" };
+
   return { value: num, error: null };
 }
 
 export function normalizeMarketplace(marketString) {
   if (!marketString) return { value: "Otro", error: null };
-  
-  const str = String(marketString).toLowerCase().trim().replace(/\s+/g, '');
-  
+
+  const raw = String(marketString).toLowerCase().trim();
+  const compact = raw.replace(/\s+/g, ""); // sin espacios
+
   const mapping = {
-    'ml': 'MercadoLibre',
-    'mercadolibre': 'MercadoLibre',
-    'mercado libre': 'MercadoLibre',
-    'ig': 'Instagram',
-    'instagram': 'Instagram',
-    'wa': 'WhatsApp',
-    'whatsapp': 'WhatsApp',
-    'local': 'Local',
-    'tienda': 'Local'
+    ml: "MercadoLibre",
+    mercadolibre: "MercadoLibre",
+    ig: "Instagram",
+    instagram: "Instagram",
+    wa: "WhatsApp",
+    whatsapp: "WhatsApp",
+    local: "Local",
+    tienda: "Local",
   };
-  
-  const normalized = mapping[str] || mapping[marketString.toLowerCase().trim()] || "Otro";
-  
-  return { value: normalized, error: null };
+
+  return { value: mapping[compact] || "Otro", error: null };
 }
 
 export function normalizeProveedor(proveedorString) {
   if (!proveedorString) return { value: "", error: null };
-  
-  const str = String(proveedorString).trim().replace(/\s\s+/g, ' ');
-  
+  const str = String(proveedorString).trim().replace(/\s\s+/g, " ");
   return { value: str, error: null };
 }
 
@@ -139,162 +139,142 @@ export function extractProductDetails(modeloString, capacidadString, colorString
   let modelo = String(modeloString || "").trim();
   let capacidad = String(capacidadString || "").trim();
   let color = String(colorString || "").trim();
-  
-  // Si capacidad y color ya están, usar esos valores
-  if (capacidad && color) {
-    return { modelo, capacidad, color, error: null };
-  }
-  
-  // Extraer capacidad del modelo si no está
+
+  if (capacidad && color) return { modelo, capacidad, color, error: null };
+
+  // Capacidad desde modelo (64GB, 1TB, etc)
   if (!capacidad && modelo) {
-    const capacidadMatch = modelo.match(/\b(\d+)\s?(GB|TB)\b/i);
-    if (capacidadMatch) {
-      capacidad = capacidadMatch[1] + capacidadMatch[2].toUpperCase();
-      modelo = modelo.replace(capacidadMatch[0], '').trim();
+    const cap = modelo.match(/\b(\d+)\s?(GB|TB)\b/i);
+    if (cap) {
+      capacidad = cap[1] + cap[2].toUpperCase();
+      modelo = modelo.replace(cap[0], "").trim();
     }
   }
-  
-  // Extraer color del modelo si no está
+
+  // Colores conocidos
   if (!color && modelo) {
-    const coloresConocidos = [
-      'Negro', 'Blanco', 'Azul', 'Rojo', 'Verde', 'Amarillo', 
-      'Rosa', 'Morado', 'Gris', 'Oro', 'Plata', 'Titanio',
-      'Grafito', 'Midnight', 'Starlight', 'Purple', 'Blue',
-      'Black', 'White', 'Red', 'Green', 'Pink', 'Gold', 'Silver',
-      'Natural', 'Desert', 'Alpine'
+    const colores = [
+      "Negro","Blanco","Azul","Rojo","Verde","Amarillo","Rosa","Morado","Gris","Oro","Plata","Titanio",
+      "Grafito","Midnight","Starlight","Purple","Blue","Black","White","Red","Green","Pink","Gold","Silver",
+      "Natural","Desert","Alpine"
     ];
-    
-    for (const colorConocido of coloresConocidos) {
-      const regex = new RegExp(`\\b${colorConocido}\\b`, 'i');
-      if (regex.test(modelo)) {
-        color = colorConocido;
-        modelo = modelo.replace(regex, '').trim();
+    for (const c of colores) {
+      const re = new RegExp(`\\b${c}\\b`, "i");
+      if (re.test(modelo)) {
+        color = c;
+        modelo = modelo.replace(re, "").trim();
         break;
       }
     }
   }
-  
-  // Limpiar espacios múltiples
-  modelo = modelo.replace(/\s\s+/g, ' ').trim();
-  
+
+  modelo = modelo.replace(/\s\s+/g, " ").trim();
   return { modelo, capacidad, color, error: null };
 }
 
 export function calculateGanancia(venta, costo, comision, canje = 0) {
-  const v = typeof venta === 'number' ? venta : 0;
-  const c = typeof costo === 'number' ? costo : 0;
-  const com = typeof comision === 'number' ? comision : 0;
-  const can = typeof canje === 'number' ? canje : 0;
-  
+  const v = Number.isFinite(venta) ? venta : 0;
+  const c = Number.isFinite(costo) ? costo : 0;
+  const com = Number.isFinite(comision) ? comision : 0;
+  const can = Number.isFinite(canje) ? canje : 0;
   return v - c - com + can;
 }
 
 export function validateGanancia(gananciaImportada, gananciaCalculada, umbral = 0.01) {
-  const diff = Math.abs(gananciaImportada - gananciaCalculada);
-  
+  const gi = Number(gananciaImportada);
+  const diff = Math.abs(gi - gananciaCalculada);
   if (diff > umbral) {
     return {
       valid: false,
-      warning: `Ganancia importada (${gananciaImportada}) difiere de la calculada (${gananciaCalculada.toFixed(2)})`
+      warning: `Ganancia importada (${gi}) difiere de la calculada (${gananciaCalculada.toFixed(2)})`
     };
   }
-  
   return { valid: true, warning: null };
-}
-
-export function normalizeRow(row, columnMapping) {
-  const normalized = {};
-  const errors = [];
-  const warnings = [];
-  
-  // Mapear columnas
-  for (const [fileColumn, ventaField] of Object.entries(columnMapping)) {
-    if (ventaField === 'ignore' || !ventaField) continue;
-    
-    const value = row[fileColumn];
-    
-    switch (ventaField) {
-      case 'fecha':
-        const dateResult = normalizeDate(value);
-        normalized.fecha = dateResult.value;
-        if (dateResult.error) errors.push(`Fecha: ${dateResult.error}`);
-        if (dateResult.warning) warnings.push(dateResult.warning);
-        break;
-        
-      case 'codigo': // Nuevo caso para el campo codigo
-        const codigoResult = normalizeCodigo(value);
-        normalized.codigo = codigoResult.value;
-        if (codigoResult.error) errors.push(`Código: ${codigoResult.error}`);
-        break;
-        
-      case 'costo':
-      case 'comision':
-      case 'venta':
-        const numResult = normalizeNumber(value);
-        normalized[ventaField] = numResult.value;
-        if (numResult.error) errors.push(`${ventaField}: ${numResult.error}`);
-        break;
-        
-      case 'marketplace':
-        const marketResult = normalizeMarketplace(value);
-        normalized.marketplace = marketResult.value;
-        break;
-        
-      case 'proveedorTexto':
-        const provResult = normalizeProveedor(value);
-        normalized.proveedorTexto = provResult.value;
-        break;
-        
-      default:
-        normalized[ventaField] = value;
-    }
-  }
-  
-  // Extraer detalles de producto
-  const productResult = extractProductDetails(
-    normalized.modelo,
-    normalized.capacidad,
-    normalized.color
-  );
-  normalized.modelo = productResult.modelo;
-  normalized.capacidad = productResult.capacidad;
-  normalized.color = productResult.color;
-  
-  // Calcular ganancia si no existe
-  if (!normalized.ganancia || normalized.ganancia === 0) {
-    normalized.ganancia = calculateGanancia(
-      normalized.venta,
-      normalized.costo,
-      normalized.comision,
-      normalized.canje
-    );
-  } else {
-    // Validar ganancia importada
-    const calculada = calculateGanancia(
-      normalized.venta,
-      normalized.costo,
-      normalized.comision,
-      normalized.canje
-    );
-    const validation = validateGanancia(normalized.ganancia, calculada, 1);
-    if (!validation.valid) {
-      warnings.push(validation.warning);
-    }
-  }
-  
-  return {
-    ...normalized,
-    _errors: errors,
-    _warnings: warnings,
-    _hasErrors: errors.length > 0
-  };
 }
 
 export function normalizeCodigo(codigoString) {
   if (!codigoString || String(codigoString).trim() === "") {
     return { value: null, error: "El código no puede estar vacío" };
   }
-
-  const str = String(codigoString).trim().toUpperCase(); // Limpiar espacios y convertir a mayúsculas
+  const str = String(codigoString).trim().toUpperCase();
   return { value: str, error: null };
+}
+
+export function normalizeRow(row, columnMapping) {
+  const normalized = {};
+  const errors = [];
+  const warnings = [];
+
+  for (const [fileColumn, ventaField] of Object.entries(columnMapping)) {
+    if (ventaField === "ignore" || !ventaField) continue;
+    const value = row[fileColumn];
+
+    switch (ventaField) {
+      case "fecha": {
+        const r = normalizeDate(value);
+        normalized.fecha = r.value;
+        if (r.error) errors.push(`Fecha: ${r.error}`);
+        if (r.warning) warnings.push(r.warning);
+        break;
+      }
+
+      case "codigo": {
+        const r = normalizeCodigo(value);
+        normalized.codigo = r.value;
+        if (r.error) errors.push(`Código: ${r.error}`);
+        break;
+      }
+
+      case "costo":
+      case "comision":
+      case "venta":
+      case "ganancia":
+      case "canje": {
+        const r = normalizeNumber(value);
+        normalized[ventaField] = r.value;
+        if (r.error) errors.push(`${ventaField}: ${r.error}`);
+        break;
+      }
+
+      case "marketplace": {
+        const r = normalizeMarketplace(value);
+        normalized.marketplace = r.value;
+        break;
+      }
+
+      case "proveedorTexto": {
+        const r = normalizeProveedor(value);
+        normalized.proveedorTexto = r.value;
+        break;
+      }
+
+      default:
+        normalized[ventaField] = value;
+    }
+  }
+
+  // Producto
+  const p = extractProductDetails(normalized.modelo, normalized.capacidad, normalized.color);
+  normalized.modelo = p.modelo;
+  normalized.capacidad = p.capacidad;
+  normalized.color = p.color;
+
+  // Ganancia: recalcular si falta o si el importador te lo pide (acá recalcula si vino vacío)
+  const gananciaVino = row?.GANANCIA ?? row?.ganancia ?? null;
+  const gananciaEsCeroReal = normalized.ganancia === 0 && String(gananciaVino).trim() === "0";
+
+  if (gananciaVino === null || gananciaVino === undefined || String(gananciaVino).trim() === "") {
+    normalized.ganancia = calculateGanancia(normalized.venta, normalized.costo, normalized.comision, normalized.canje);
+  } else if (!gananciaEsCeroReal) {
+    const calc = calculateGanancia(normalized.venta, normalized.costo, normalized.comision, normalized.canje);
+    const v = validateGanancia(normalized.ganancia, calc, 1);
+    if (!v.valid) warnings.push(v.warning);
+  }
+
+  return {
+    ...normalized,
+    _errors: errors,
+    _warnings: warnings,
+    _hasErrors: errors.length > 0
+  };
 }
