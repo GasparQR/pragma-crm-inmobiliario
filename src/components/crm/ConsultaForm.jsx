@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { User, Package, DollarSign, Calendar, Plus } from "lucide-react";
 import moment from "moment";
@@ -14,7 +15,6 @@ import { getNextBusinessDay } from "@/components/utils/dateUtils";
 
 const CATEGORIAS = ["iPhone", "Mac", "iPad", "AirPods", "Apple Watch", "Accesorios", "Otro"];
 const CANALES = ["Instagram", "WhatsApp", "MercadoLibre", "Referido", "Local", "Otro"];
-const ETAPAS = ["Nuevo", "Respondido", "Seguimiento1", "Seguimiento2", "Negociacion", "Concretado", "Perdido"];
 const PRIORIDADES = ["Alta", "Media", "Baja"];
 const MOTIVOS_PERDIDA = ["Caro", "SinStock", "ComproOtro", "NoResponde", "Financiacion", "Otro"];
 
@@ -22,6 +22,15 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
   const [contactos, setContactos] = useState([]);
   const [showNewContact, setShowNewContact] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const { data: etapas = [] } = useQuery({
+    queryKey: ['pipeline-stages'],
+    queryFn: async () => {
+      const stages = await base44.entities.PipelineStage.list("orden", 100);
+      return stages.filter(s => s.activa !== false);
+    },
+    enabled: open
+  });
   
   const [formData, setFormData] = useState({
     contactoId: "",
@@ -347,8 +356,8 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {ETAPAS.map(e => (
-                      <SelectItem key={e} value={e}>{e}</SelectItem>
+                    {etapas.map(e => (
+                      <SelectItem key={e.nombre} value={e.nombre}>{e.nombre}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
