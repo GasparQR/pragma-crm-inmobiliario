@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Calendar, Phone, MoreHorizontal } from "lucide-react";
+import { MessageCircle, Calendar, Phone, MoreHorizontal, CheckCircle } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import moment from "moment";
 
@@ -10,17 +11,7 @@ const prioridadColors = {
   Baja: "bg-slate-50 text-slate-600 border-slate-200"
 };
 
-const etapaColors = {
-  Nuevo: "bg-blue-500",
-  Respondido: "bg-cyan-500",
-  Seguimiento1: "bg-amber-500",
-  Seguimiento2: "bg-orange-500",
-  Negociacion: "bg-purple-500",
-  Concretado: "bg-emerald-500",
-  Perdido: "bg-slate-400"
-};
-
-export default function ConsultaCard({ consulta, onWhatsApp, onEdit, isDragging }) {
+export default function ConsultaCard({ consulta, onWhatsApp, onEdit, onConcretarVenta, isDragging }) {
   const seguimientoVencido = consulta.proximoSeguimiento && 
     moment(consulta.proximoSeguimiento).isBefore(moment(), 'day');
   const seguimientoHoy = consulta.proximoSeguimiento && 
@@ -35,7 +26,6 @@ export default function ConsultaCard({ consulta, onWhatsApp, onEdit, isDragging 
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className={cn("w-2 h-2 rounded-full", etapaColors[consulta.etapa])} />
           <span className="font-semibold text-slate-900 text-sm">
             {consulta.contactoNombre || "Sin nombre"}
           </span>
@@ -96,14 +86,30 @@ export default function ConsultaCard({ consulta, onWhatsApp, onEdit, isDragging 
           <MessageCircle className="w-3.5 h-3.5" />
           WhatsApp
         </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={(e) => { e.stopPropagation(); onEdit?.(consulta); }}
-          className="h-8 w-8 p-0"
-        >
-          <MoreHorizontal className="w-4 h-4 text-slate-400" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={(e) => { e.stopPropagation(); }}
+              className="h-8 w-8 p-0"
+            >
+              <MoreHorizontal className="w-4 h-4 text-slate-400" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit?.(consulta); }}>
+              Editar
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={(e) => { e.stopPropagation(); onConcretarVenta?.(consulta); }}
+              className="text-green-600"
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Concretar Venta
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

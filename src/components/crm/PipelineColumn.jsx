@@ -2,18 +2,7 @@ import { Droppable, Draggable } from "@hello-pangea/dnd";
 import ConsultaCard from "./ConsultaCard";
 import { cn } from "@/lib/utils";
 
-const etapaConfig = {
-  Nuevo: { color: "bg-blue-500", label: "Nuevo" },
-  Respondido: { color: "bg-cyan-500", label: "Respondido" },
-  Seguimiento1: { color: "bg-amber-500", label: "Seguimiento 1" },
-  Seguimiento2: { color: "bg-orange-500", label: "Seguimiento 2" },
-  Negociacion: { color: "bg-purple-500", label: "Negociación" },
-  Concretado: { color: "bg-emerald-500", label: "Concretado" },
-  Perdido: { color: "bg-slate-400", label: "Perdido" }
-};
-
-export default function PipelineColumn({ etapa, consultas, onWhatsApp, onEdit }) {
-  const config = etapaConfig[etapa];
+export default function PipelineColumn({ etapa, etapaColor, consultas, onWhatsApp, onEdit, onConcretarVenta }) {
   const total = consultas.reduce((sum, c) => sum + (c.precioCotizado || 0), 0);
 
   return (
@@ -22,8 +11,8 @@ export default function PipelineColumn({ etapa, consultas, onWhatsApp, onEdit })
       <div className="p-4 border-b border-slate-100">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <div className={cn("w-3 h-3 rounded-full", config.color)} />
-            <h3 className="font-semibold text-slate-900">{config.label}</h3>
+            <div className={cn("w-3 h-3 rounded-full", etapaColor || "bg-blue-500")} />
+            <h3 className="font-semibold text-slate-900">{etapa}</h3>
           </div>
           <span className="text-sm font-medium text-slate-500 bg-white px-2 py-0.5 rounded-full">
             {consultas.length}
@@ -59,6 +48,7 @@ export default function PipelineColumn({ etapa, consultas, onWhatsApp, onEdit })
                       consulta={consulta}
                       onWhatsApp={onWhatsApp}
                       onEdit={onEdit}
+                      onConcretarVenta={onConcretarVenta}
                       isDragging={snapshot.isDragging}
                     />
                   </div>
