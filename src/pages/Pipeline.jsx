@@ -7,16 +7,16 @@ import { DragDropContext } from "@hello-pangea/dnd";
 import PipelineColumn from "@/components/crm/PipelineColumn";
 import ConsultaForm from "@/components/crm/ConsultaForm";
 import WhatsAppSender from "@/components/crm/WhatsAppSender";
+import VentaForm from "@/components/ventas/VentaForm";
 import { Button } from "@/components/ui/button";
-import { Plus, Filter, ArrowLeft } from "lucide-react";
+import { Plus, Filter, ArrowLeft, Settings } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-
-const ETAPAS = ["Nuevo", "Respondido", "Seguimiento1", "Seguimiento2", "Negociacion", "Concretado", "Perdido"];
 
 export default function Pipeline() {
   const [showForm, setShowForm] = useState(false);
   const [showWhatsApp, setShowWhatsApp] = useState(false);
+  const [showVentaForm, setShowVentaForm] = useState(false);
   const [selectedConsulta, setSelectedConsulta] = useState(null);
   const [filtroCanal, setFiltroCanal] = useState("todos");
   const [filtroPrioridad, setFiltroPrioridad] = useState("todas");
@@ -26,6 +26,14 @@ export default function Pipeline() {
   const { data: consultas = [], refetch } = useQuery({
     queryKey: ['consultas-pipeline'],
     queryFn: () => base44.entities.Consulta.list("-created_date", 500)
+  });
+
+  const { data: etapas = [] } = useQuery({
+    queryKey: ['pipeline-stages'],
+    queryFn: async () => {
+      const stages = await base44.entities.PipelineStage.list("orden", 100);
+      return stages.filter(s => s.activa !== false);
+    }
   });
 
   const updateMutation = useMutation({
@@ -59,6 +67,24 @@ export default function Pipeline() {
     setShowForm(true);
   };
 
+  const handleConcretarVenta = (consulta) => {
+    setSelectedConsulta(consulta);
+    setShowVentaForm(true);
+  };
+
+  const handleVentaCreada = async () => {
+    if (selectedConsulta) {
+      await base44.entities.Consulta.update(selectedConsulta.id, {
+        etapa: "Concretado",
+        concretado: true
+      });
+      queryClient.invalidateQueries({ queryKey: ['consultas-pipeline'] });
+      toast.success("Venta registrada y consulta marcada como Concretado");
+    }
+    setShowVentaForm(false);
+    setSelectedConsulta(null);
+  };
+
   // Filtrar consultas
   const consultasFiltradas = consultas.filter(c => {
     if (filtroCanal !== "todos" && c.canalOrigen !== filtroCanal) return false;
@@ -67,8 +93,8 @@ export default function Pipeline() {
   });
 
   // Agrupar por etapa
-  const consultasPorEtapa = ETAPAS.reduce((acc, etapa) => {
-    acc[etapa] = consultasFiltradas.filter(c => c.etapa === etapa);
+  const consultasPorEtapa = etapas.reduce((acc, etapa) => {
+    acc[etapa.nombre] = consultasFiltradas.filter(c => c.etapa === etapa.nombre);
     return acc;
   }, {});
 
@@ -115,6 +141,12 @@ export default function Pipeline() {
                 </SelectContent>
               </Select>
             </div>
+            <Link to={createPageUrl("ConfigurarPipeline")}>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Settings className="w-4 h-4" />
+                Configurar
+              </Button>
+            </Link>
             <Button onClick={() => { setSelectedConsulta(null); setShowForm(true); }} className="gap-2">
               <Plus className="w-4 h-4" />
               Nueva
@@ -127,13 +159,15 @@ export default function Pipeline() {
       <div className="p-6 overflow-x-auto">
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="flex gap-4 min-w-max">
-            {ETAPAS.map(etapa => (
+            {etapas.map(etapa => (
               <PipelineColumn
-                key={etapa}
-                etapa={etapa}
-                consultas={consultasPorEtapa[etapa]}
+                key={etapa.nombre}
+                etapa={etapa.nombre}
+                etapaColor={etapa.color}
+                consultas={consultasPorEtapa[etapa.nombre]}
                 onWhatsApp={handleWhatsApp}
                 onEdit={handleEdit}
+                onConcretarVenta={handleConcretarVenta}
               />
             ))}
           </div>
@@ -155,6 +189,13 @@ export default function Pipeline() {
         onOpenChange={setShowWhatsApp}
         consulta={selectedConsulta}
         onMessageSent={refetch}
+      />
+
+      <VentaForm
+        open={showVentaForm}
+        onOpenChange={setShowVentaForm}
+        consulta={selectedConsulta}
+        onVentaCreada={handleVentaCreada}
       />
     </div>
   );
