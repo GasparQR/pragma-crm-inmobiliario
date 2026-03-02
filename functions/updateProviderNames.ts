@@ -9,10 +9,6 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const body = await req.json().catch(() => ({}));
-    const dryRun = body.dryRun !== false; // default true (diagnostico)
-
-    // Mapeo: nombre incorrecto (exacto, case-insensitive trim) -> nombre correcto
     const nameMap = {
       "GON CETSELL": "CELLSAT",
       "EMI IMPO": "IMPO CBA",
@@ -22,47 +18,22 @@ Deno.serve(async (req) => {
       "MARTIN MB CELUS": "MB CELUS",
     };
 
-    const allVentas = await base44.asServiceRole.entities.Venta.list();
+    const allVentas = await base44.asServiceRole.entities.Venta.list('-created_date', 500);
 
-    // Primero hacer diagnóstico: listar todos los valores únicos de proveedorNombreSnapshot
-    const uniqueNames = {};
-    for (const venta of allVentas) {
-      const snap = venta.proveedorNombreSnapshot || venta.proveedorTexto || '';
-      if (!uniqueNames[snap]) uniqueNames[snap] = 0;
-      uniqueNames[snap]++;
-    }
-
-    if (dryRun) {
-      return Response.json({
-        mode: 'diagnostico',
-        uniqueProveedorNames: uniqueNames,
-        total: allVentas.length
-      });
-    }
-
-    // Modo actualización: aplicar mapeo
     const updated = [];
     for (const venta of allVentas) {
       const snap = (venta.proveedorNombreSnapshot || '').trim();
+      const newName = nameMap[snap];
 
-      let newName = null;
-      for (const [oldName, correctedName] of Object.entries(nameMap)) {
-        if (snap === oldName && snap !== correctedName) {
-          newName = correctedName;
-          break;
-        }
-      }
-
-      if (newName) {
+      if (newName && snap !== newName) {
         await base44.asServiceRole.entities.Venta.update(venta.id, {
           proveedorNombreSnapshot: newName
         });
-        updated.push({ id: venta.id, oldName: snap, newName });
+        updated.push({ id: venta.id, codigo: venta.codigo, oldName: snap, newName });
       }
     }
 
     return Response.json({
-      mode: 'actualización',
       message: `Se actualizaron ${updated.length} ventas.`,
       details: updated
     });
