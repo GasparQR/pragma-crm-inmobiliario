@@ -23,6 +23,9 @@ Deno.serve(async (req) => {
       "MB CELUS":         { nombre: "MB CELUS",   id: "6968c19b33dc2a668f64cbc9" },
       "CELLSAT":          { nombre: "CELLSAT",    id: "6968c0edeb7edf8d57cae8aa" },
       "EDY":              { nombre: "EDY",        id: "6967aab50fb89d1c9af3bb2b" },
+      "PLAN CANJE":       { nombre: "Plan Canje", id: null },
+      "plan canje":       { nombre: "Plan Canje", id: null },
+      "Plan canje":       { nombre: "Plan Canje", id: null },
     };
 
     const allVentas = await base44.asServiceRole.entities.Venta.list('-created_date', 500);
