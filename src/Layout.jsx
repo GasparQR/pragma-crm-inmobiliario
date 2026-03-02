@@ -131,7 +131,7 @@ export default function Layout({ children, currentPageName }) {
       <main className={cn("transition-all duration-300", sidebarCollapsed ? "lg:ml-16" : "lg:ml-64")}>
         {children}
       </main>
-    </div>
+      </div>
     </WorkspaceProvider>
   );
 }
