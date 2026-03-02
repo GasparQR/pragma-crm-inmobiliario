@@ -26,9 +26,9 @@ Deno.serve(async (req) => {
 
         const ventas = await base44.asServiceRole.entities.Venta.filter({
             estado: 'Finalizada',
-            created_date: {
-                $gte: '2026-01-01T00:00:00.000Z',
-                $lt: '2027-01-01T00:00:00.000Z'
+            fecha: {
+                $gte: '2026-01-01',
+                $lt: '2027-01-01'
             }
         });
 
