@@ -69,11 +69,6 @@ export default function Layout({ children, currentPageName }) {
               <span className="font-bold text-slate-900">AltatechCRM</span>
             </div>
           )}
-          {sidebarCollapsed && (
-            <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">A</span>
-            </div>
-          )}
           <div className="flex items-center gap-1">
             <Button
               variant="ghost"
