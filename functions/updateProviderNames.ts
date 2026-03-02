@@ -44,11 +44,10 @@ Deno.serve(async (req) => {
     const updated = [];
     for (const venta of allVentas) {
       const snap = (venta.proveedorNombreSnapshot || '').trim();
-      const snapUpper = snap.toUpperCase();
 
       let newName = null;
       for (const [oldName, correctedName] of Object.entries(nameMap)) {
-        if (snapUpper === oldName.toUpperCase() && snap !== correctedName) {
+        if (snap === oldName && snap !== correctedName) {
           newName = correctedName;
           break;
         }
