@@ -80,7 +80,8 @@ export default function VentaForm({ open, onOpenChange, consulta, onVentaCreada,
         venta: consulta.precioCotizado || "",
         canje: 0,
         moneda: consulta.moneda || "USD",
-        notas: ""
+        notas: "",
+        whatsappCliente: consulta.contactoWhatsapp || ""
       });
     } else if (open && !ventaExistente && !consulta) {
       setFormData({
@@ -103,7 +104,8 @@ export default function VentaForm({ open, onOpenChange, consulta, onVentaCreada,
         venta: "",
         canje: 0,
         moneda: "USD",
-        notas: ""
+        notas: "",
+        whatsappCliente: ""
       });
     }
   }, [consulta, ventaExistente, open]);
