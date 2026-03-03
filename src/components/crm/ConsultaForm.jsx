@@ -89,7 +89,8 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
   }, [consulta, open]);
 
   const loadContactos = async () => {
-    const data = await base44.entities.Contacto.list("-created_date", 100);
+    if (!workspace) return;
+    const data = await base44.entities.Contacto.filter({ workspace_id: workspace.id }, "-created_date", 100);
     setContactos(data);
   };
 
