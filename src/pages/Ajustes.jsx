@@ -25,6 +25,13 @@ const OPCIONES = [
     icon: Kanban,
     page: "ConfigurarPipeline",
     color: "bg-blue-100 text-blue-700"
+  },
+  {
+    title: "Listas WhatsApp",
+    description: "Administrá tus listas de precios y catálogos para enviar",
+    icon: MessageSquare,
+    page: "ListasWhatsApp",
+    color: "bg-green-100 text-green-700"
   }
 ];
 

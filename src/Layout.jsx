@@ -18,9 +18,7 @@ const NAV_ITEMS = [
   { name: "Proveedores", icon: Users, page: "Proveedores" },
   { name: "Hoy", icon: Calendar, page: "Hoy" },
   { name: "Contactos", icon: Users, page: "Contactos" },
-  { name: "Plantillas", icon: MessageSquare, page: "Plantillas" },
-  { name: "Listas WhatsApp", icon: MessageSquare, page: "ListasWhatsApp" },
-  { name: "Configurar Pipeline", icon: Kanban, page: "ConfigurarPipeline" },
+
   { name: "Postventa", icon: CheckCircle2, page: "Postventa" },
   { name: "Ajustes", icon: Users, page: "Ajustes" },
 ];
