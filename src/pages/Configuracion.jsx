@@ -212,14 +212,6 @@ export default function Configuracion() {
                 <option value="ARS">Pesos argentinos (ARS)</option>
               </select>
             </div>
-            <Separator />
-            <div className="space-y-2">
-              <Label>Moneda por defecto</Label>
-              <select className="w-full rounded-lg border border-slate-200 px-3 py-2">
-                <option value="USD">Dólares (USD)</option>
-                <option value="ARS">Pesos argentinos (ARS)</option>
-              </select>
-            </div>
           </CardContent>
         </Card>
 
