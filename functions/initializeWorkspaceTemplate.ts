@@ -91,8 +91,8 @@ const TECH_APPLE_SETTINGS = {
 const REAL_ESTATE_SETTINGS = {
   currency: "USD",
   timezone: "America/Argentina/Cordoba",
-  consulta_follow_up_days: 2,
-  postventa_follow_up_days: 5,
+  consulta_follow_up_days: 10,
+  postventa_follow_up_days: 15,
 };
 
 // ── HELPERS ──────────────────────────────────────────────────────────────────
