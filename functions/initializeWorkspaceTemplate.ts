@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-// ── PLANTILLA TECH APPLE ──────────────────────────────────────────────────────
+// ── PLANTILLAS (las tuyas) ────────────────────────────────────────────────────
 const TECH_APPLE_PIPELINE = [
   { nombre: "Nuevo", orden: 1, color: "bg-blue-500", is_won: false, is_lost: false },
   { nombre: "Cotizado", orden: 2, color: "bg-cyan-500", is_won: false, is_lost: false },
@@ -26,7 +26,6 @@ const TECH_APPLE_TAGS = [
   { name: "Baja", type: "priority", color: "bg-blue-100 text-blue-800" },
 ];
 
-// ── PLANTILLA INMOBILIARIA ────────────────────────────────────────────────────
 const REAL_ESTATE_PIPELINE = [
   { nombre: "Nuevo Cliente", orden: 1, color: "bg-blue-500", is_won: false, is_lost: false },
   { nombre: "Calificado", orden: 2, color: "bg-cyan-500", is_won: false, is_lost: false },
@@ -41,32 +40,27 @@ const REAL_ESTATE_PIPELINE = [
 ];
 
 const REAL_ESTATE_TAGS = [
-  // Origen
   { name: "Portales", type: "source" },
   { name: "Instagram", type: "source" },
   { name: "WhatsApp", type: "source" },
   { name: "Referido", type: "source" },
   { name: "Cartel", type: "source" },
   { name: "Web", type: "source" },
-  // Operación
   { name: "Venta", type: "operation" },
   { name: "Alquiler", type: "operation" },
   { name: "Alquiler temporal", type: "operation" },
-  // Tipo de propiedad
   { name: "Departamento", type: "property_type" },
   { name: "Casa", type: "property_type" },
   { name: "Lote", type: "property_type" },
   { name: "Oficina", type: "property_type" },
   { name: "Local", type: "property_type" },
   { name: "Galpón", type: "property_type" },
-  // Zona
   { name: "Nueva Córdoba", type: "zone" },
   { name: "Centro", type: "zone" },
   { name: "General Paz", type: "zone" },
   { name: "Cerro", type: "zone" },
   { name: "Güemes", type: "zone" },
   { name: "Zona Norte", type: "zone" },
-  // Prioridad
   { name: "Alta", type: "priority" },
   { name: "Media", type: "priority" },
   { name: "Baja", type: "priority" },
@@ -89,105 +83,134 @@ const REAL_ESTATE_CUSTOM_FIELDS = [
 
 const TECH_APPLE_SETTINGS = {
   currency: "USD",
-  timezone: "America/Cordoba",
+  timezone: "America/Argentina/Cordoba",
   consulta_follow_up_days: 3,
   postventa_follow_up_days: 7,
 };
 
 const REAL_ESTATE_SETTINGS = {
   currency: "USD",
-  timezone: "America/Cordoba",
+  timezone: "America/Argentina/Cordoba",
   consulta_follow_up_days: 2,
   postventa_follow_up_days: 5,
 };
 
-// ── HELPER: upsert idempotente ────────────────────────────────────────────────
-async function upsertMany(base44, entityName, items, uniqueKeys) {
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+
+// “upsert” real: si existe -> update; si no -> create
+async function upsertManyUpdate(base44: any, entityName: string, items: any[], uniqueKeys: string[]) {
   let created = 0;
-  let skipped = 0;
+  let updated = 0;
 
   for (const item of items) {
-    const filter = {};
+    const filter: any = {};
     for (const k of uniqueKeys) filter[k] = item[k];
 
+    // Nota: filter devuelve array
     const existing = await base44.asServiceRole.entities[entityName].filter(filter, null, 1);
-    if (existing.length === 0) {
+
+    if (!existing || existing.length === 0) {
       await base44.asServiceRole.entities[entityName].create(item);
       created++;
     } else {
-      skipped++;
+      await base44.asServiceRole.entities[entityName].update(existing[0].id, item);
+      updated++;
     }
   }
 
-  return { created, skipped };
+  return { created, updated };
 }
 
-// ── HANDLER PRINCIPAL ─────────────────────────────────────────────────────────
+// Desactivar etapas viejas que no están en la plantilla actual
+async function deactivateMissingPipelineStages(base44: any, workspace_id: string, allowedNames: string[]) {
+  const all = await base44.asServiceRole.entities.PipelineStage.filter({ workspace_id }, null, 5000);
+  let deactivated = 0;
+
+  for (const st of all) {
+    if (!allowedNames.includes(st.nombre) && st.activa !== false) {
+      await base44.asServiceRole.entities.PipelineStage.update(st.id, { activa: false });
+      deactivated++;
+    }
+  }
+  return { deactivated };
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
-    if (!user) {
-      return Response.json({ error: 'No autorizado' }, { status: 401 });
+    if (!user) return Response.json({ error: "No autorizado" }, { status: 401 });
+
+    const body = await req.json().catch(() => ({}));
+    const industry = body?.industry;
+
+    if (!["tech_apple", "real_estate"].includes(industry)) {
+      return Response.json({ error: "Industria inválida. Usar tech_apple o real_estate" }, { status: 400 });
     }
 
-    const { industry } = await req.json();
+    // Usar user.id como clave real; fallback a email si no existiera
+    const userKey = user.id ?? user.email;
 
-    if (!['tech_apple', 'real_estate'].includes(industry)) {
-      return Response.json({ error: 'Industria inválida. Usar tech_apple o real_estate' }, { status: 400 });
-    }
+    // 1) Obtener workspace del usuario (por membresía)
+    const members =
+      (await base44.asServiceRole.entities.WorkspaceMember.filter({ user_id: userKey }, null, 50)) ||
+      (await base44.asServiceRole.entities.WorkspaceMember.filter({ user_id: user.email }, null, 50));
 
-    // 1) Obtener o crear workspace del usuario
     let workspace = null;
-    const members = await base44.asServiceRole.entities.WorkspaceMember.filter({ user_id: user.email });
 
-    if (members.length > 0) {
-      const adminMember = members.find(m => m.role === 'admin') || members[0];
-      const workspaces = await base44.asServiceRole.entities.Workspace.filter({ id: adminMember.workspace_id });
-      if (workspaces.length > 0) workspace = workspaces[0];
+    if (members?.length) {
+      const m = members.find((x: any) => x.role === "admin") || members[0];
+      // mejor: buscar por id real
+      const ws = await base44.asServiceRole.entities.Workspace.filter({ id: m.workspace_id }, null, 1);
+      workspace = ws?.[0] ?? null;
     }
 
+    // 2) Crear workspace si no existe
     if (!workspace) {
       workspace = await base44.asServiceRole.entities.Workspace.create({
-        name: user.full_name ? `Workspace de ${user.full_name}` : 'Mi Workspace',
-        owner_user_id: user.email,
+        name: user.full_name ? `Workspace de ${user.full_name}` : "Mi Workspace",
+        owner_user_id: userKey,
         industry,
       });
+
       await base44.asServiceRole.entities.WorkspaceMember.create({
         workspace_id: workspace.id,
-        user_id: user.email,
-        role: 'admin',
+        user_id: userKey,
+        role: "admin",
       });
     } else {
-      // Actualizar industry
       await base44.asServiceRole.entities.Workspace.update(workspace.id, { industry });
     }
 
     const workspace_id = workspace.id;
 
-    // 2) Seleccionar plantilla
-    const pipeline = industry === 'tech_apple' ? TECH_APPLE_PIPELINE : REAL_ESTATE_PIPELINE;
-    const tags = industry === 'tech_apple' ? TECH_APPLE_TAGS : REAL_ESTATE_TAGS;
-    const customFields = industry === 'tech_apple' ? [] : REAL_ESTATE_CUSTOM_FIELDS;
-    const settings = industry === 'tech_apple' ? TECH_APPLE_SETTINGS : REAL_ESTATE_SETTINGS;
+    // 3) Selección de plantilla
+    const pipeline = industry === "tech_apple" ? TECH_APPLE_PIPELINE : REAL_ESTATE_PIPELINE;
+    const tags = industry === "tech_apple" ? TECH_APPLE_TAGS : REAL_ESTATE_TAGS;
+    const customFields = industry === "tech_apple" ? [] : REAL_ESTATE_CUSTOM_FIELDS;
+    const settings = industry === "tech_apple" ? TECH_APPLE_SETTINGS : REAL_ESTATE_SETTINGS;
 
-    // 3) Seed pipeline
-    const pipelineItems = pipeline.map(s => ({ ...s, workspace_id, activa: true }));
-    const pipelineResult = await upsertMany(base44, 'PipelineStage', pipelineItems, ['workspace_id', 'nombre']);
+    // 4) Pipeline: upsert con update + desactivar lo que sobra
+    const pipelineItems = pipeline.map((s) => ({ ...s, workspace_id, activa: true }));
+    const pipelineResult = await upsertManyUpdate(base44, "PipelineStage", pipelineItems, ["workspace_id", "nombre"]);
+    const deactivationResult = await deactivateMissingPipelineStages(base44, workspace_id, pipeline.map((x) => x.nombre));
 
-    // 4) Seed tags
-    const tagItems = tags.map(t => ({ ...t, workspace_id }));
-    const tagsResult = await upsertMany(base44, 'Tag', tagItems, ['workspace_id', 'name']);
+    // 5) Tags: upsert con update (así si cambias color/type, se actualiza)
+    const tagItems = tags.map((t) => ({ ...t, workspace_id }));
+    const tagsResult = await upsertManyUpdate(base44, "Tag", tagItems, ["workspace_id", "name"]);
 
-    // 5) Seed custom fields
-    const cfItems = customFields.map(f => ({ ...f, workspace_id }));
-    const cfResult = await upsertMany(base44, 'CustomField', cfItems, ['workspace_id', 'key']);
+    // 6) Custom Fields: upsert con update
+    const cfItems = customFields.map((f) => ({ ...f, workspace_id }));
+    const cfResult = await upsertManyUpdate(base44, "CustomField", cfItems, ["workspace_id", "key"]);
 
-    // 6) Settings (una sola por workspace)
-    const existingSettings = await base44.asServiceRole.entities.WorkspaceSettings.filter({ workspace_id });
-    if (existingSettings.length === 0) {
+    // 7) Settings: create o update
+    const existingSettings = await base44.asServiceRole.entities.WorkspaceSettings.filter({ workspace_id }, null, 1);
+
+    if (!existingSettings || existingSettings.length === 0) {
       await base44.asServiceRole.entities.WorkspaceSettings.create({ ...settings, workspace_id });
+    } else {
+      await base44.asServiceRole.entities.WorkspaceSettings.update(existingSettings[0].id, { ...settings, workspace_id });
     }
 
     return Response.json({
@@ -196,11 +219,13 @@ Deno.serve(async (req) => {
       industry,
       summary: {
         pipeline: pipelineResult,
+        pipeline_deactivated: deactivationResult,
         tags: tagsResult,
         custom_fields: cfResult,
+        settings_updated: true,
       },
     });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: String(error?.message ?? error) }, { status: 500 });
   }
 });
