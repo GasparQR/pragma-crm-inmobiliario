@@ -28,7 +28,13 @@ export function WorkspaceProvider({ children }) {
         const adminMembership = members.find(m => m.role === "admin") || members[0];
         const workspaces = await base44.entities.Workspace.filter({ id: adminMembership.workspace_id });
         if (workspaces.length > 0) {
-          setWorkspace(workspaces[0]);
+          const ws = workspaces[0];
+          setWorkspace(ws);
+          // Si no tiene industry, redirigir a onboarding
+          if (!ws.industry && window.location.pathname !== createPageUrl("Onboarding")) {
+            window.location.href = createPageUrl("Onboarding");
+          }
+          return;
         }
       } else {
         // Crear workspace nuevo para este usuario
