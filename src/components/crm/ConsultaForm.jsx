@@ -14,8 +14,7 @@ import { User, Package, DollarSign, Calendar, Plus } from "lucide-react";
 import moment from "moment";
 import { getNextBusinessDay } from "@/components/utils/dateUtils";
 
-const CATEGORIAS = ["iPhone", "Mac", "iPad", "AirPods", "Apple Watch", "Accesorios", "Otro"];
-const CANALES = ["Instagram", "WhatsApp", "MercadoLibre", "Referido", "Local", "Otro"];
+const CANALES_DEFAULT = ["Instagram", "WhatsApp", "MercadoLibre", "Referido", "Local", "Otro"];
 const PRIORIDADES = ["Alta", "Media", "Baja"];
 const MOTIVOS_PERDIDA = ["Caro", "SinStock", "ComproOtro", "NoResponde", "Financiacion", "Otro"];
 
