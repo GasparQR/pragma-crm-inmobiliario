@@ -271,9 +271,9 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
                         <SelectValue placeholder="Seleccionar" />
                       </SelectTrigger>
                       <SelectContent>
-                        {CANALES.map(c => (
-                          <SelectItem key={c} value={c}>{c}</SelectItem>
-                        ))}
+                        {canalesList.map(c => (
+                           <SelectItem key={c} value={c}>{c}</SelectItem>
+                         ))}
                       </SelectContent>
                     </Select>
                   </div>
