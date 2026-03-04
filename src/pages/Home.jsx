@@ -257,6 +257,67 @@ export default function Home() {
           </Card>
         )}
 
+        {/* KPIs Avanzados */}
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Métricas Avanzadas</h2>
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <KPICard title="Leads últimos 7d" value={last7Days.length} subtitle={`${last30Days.length} en 30 días`} icon={Users} />
+            <KPICard title="Tasa de conversión" value={`${tasaConversion}%`} subtitle={`${concretados.length} concretados`} icon={TrendingUp} />
+            <KPICard title="Ganancia Mensual" value={`$${gananciaMensual.toFixed(0)}`} subtitle={`${ventasMesActual.length} ventas`} icon={DollarSign} />
+            <KPICard title="Activos" value={activos.length} subtitle="En seguimiento" icon={Clock} />
+            <KPICard title="Perdidos" value={perdidos.length} subtitle={`${((perdidos.length / (consultas.length || 1)) * 100).toFixed(0)}% del total`} icon={XCircle} />
+          </div>
+        </div>
+
+        {/* Gráficos */}
+        <div className="grid lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader><CardTitle className="text-base">Leads por canal</CardTitle></CardHeader>
+            <CardContent>
+              {canalData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={canalData}>
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : <p className="text-center text-slate-400 py-12">Sin datos</p>}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="text-base">Productos más consultados</CardTitle></CardHeader>
+            <CardContent>
+              {productosData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={220}>
+                  <PieChart>
+                    <Pie data={productosData} cx="50%" cy="50%" outerRadius={80} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                      {productosData.map((_, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : <p className="text-center text-slate-400 py-12">Sin datos</p>}
+            </CardContent>
+          </Card>
+          {motivosData.length > 0 && (
+            <Card className="lg:col-span-2">
+              <CardHeader><CardTitle className="text-base">Motivos de pérdida</CardTitle></CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={motivosData} layout="vertical">
+                    <XAxis type="number" tick={{ fontSize: 12 }} />
+                    <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} width={100} />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#ef4444" radius={[0, 4, 4, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
         {/* Accesos Directos */}
         <div>
           <h2 className="text-lg font-semibold text-slate-900 mb-4">Accesos Rápidos</h2>
