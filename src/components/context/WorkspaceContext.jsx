@@ -48,6 +48,8 @@ export function WorkspaceProvider({ children }) {
           role: "admin"
         });
         setWorkspace(newWorkspace);
+        // Workspace nuevo sin industry → ir a onboarding
+        window.location.href = createPageUrl("Onboarding");
       }
     } catch (err) {
       console.error("Error bootstrapping workspace:", err);
