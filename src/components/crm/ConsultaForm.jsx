@@ -33,6 +33,16 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
     },
     enabled: open && !!workspace
   });
+
+  const { data: tags = [] } = useQuery({
+    queryKey: ['tags', workspace?.id],
+    queryFn: () => workspace ? base44.entities.Tag.filter({ workspace_id: workspace.id }) : [],
+    enabled: open && !!workspace
+  });
+
+  const categorias = tags.filter(t => t.type === 'category').map(t => t.name);
+  const canales = tags.filter(t => t.type === 'source').map(t => t.name);
+  const canalesList = canales.length > 0 ? canales : CANALES_DEFAULT;
   
   const [formData, setFormData] = useState({
     contactoId: "",
