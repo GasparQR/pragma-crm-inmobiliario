@@ -310,7 +310,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
                     <SelectValue placeholder="Seleccionar" />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATEGORIAS.map(c => (
+                    {(categorias.length > 0 ? categorias : ["iPhone", "Mac", "iPad", "AirPods", "Apple Watch", "Accesorios", "Otro"]).map(c => (
                       <SelectItem key={c} value={c}>{c}</SelectItem>
                     ))}
                   </SelectContent>
