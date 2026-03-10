@@ -14,8 +14,18 @@ import { Switch } from "@/components/ui/switch";
 import { ArrowLeft, Save, Trash2, MessageCircle, DollarSign, TrendingUp, Package, Mail, Phone, Globe, Instagram } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { useWorkspace } from "@/components/context/WorkspaceContext";
 
-const CATEGORIAS = ["iPhone", "Watch", "Mac", "iPad", "AirPods", "Accesorios", "General"];
+const CATEGORIAS_BY_INDUSTRY = {
+  real_estate: ["Casas", "Departamentos", "Oficinas", "Locales", "Lotes", "Galpones", "General"],
+  tech_apple: ["iPhone", "Watch", "Mac", "iPad", "AirPods", "Accesorios", "General"],
+};
+
+const PLACEHOLDER_BY_INDUSTRY = {
+  real_estate: "Ej: Barrio Norte Propiedades",
+  tech_apple: "Ej: Apple Premium Store",
+};
+
 const MONEDAS = ["USD", "ARS", "USDT"];
 const METODOS_PAGO = ["Efectivo", "Transferencia", "USDT", "Tarjeta", "Otro"];
 
