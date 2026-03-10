@@ -275,7 +275,7 @@ export default function ProveedorDetalle() {
                 <Input
                   value={formData.nombre}
                   onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                  placeholder="Apple Premium Store"
+                  placeholder={nombrePlaceholder}
                 />
               </div>
               <div className="space-y-2">
