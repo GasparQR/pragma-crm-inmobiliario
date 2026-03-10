@@ -55,7 +55,11 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
     enabled: open && !!workspace
   });
 
+  const industry = workspace?.industry || "tech_apple";
   const categorias = tags.filter(t => t.type === 'category').map(t => t.name);
+  const categoriasDefault = CATEGORIAS_BY_INDUSTRY[industry] || CATEGORIAS_BY_INDUSTRY.tech_apple;
+  const productoPlaceholder = PRODUCTO_PLACEHOLDER_BY_INDUSTRY[industry] || PRODUCTO_PLACEHOLDER_BY_INDUSTRY.tech_apple;
+  const variantePlaceholder = VARIANTE_PLACEHOLDER_BY_INDUSTRY[industry] || VARIANTE_PLACEHOLDER_BY_INDUSTRY.tech_apple;
   const canales = tags.filter(t => t.type === 'source').map(t => t.name);
   const canalesList = canales.length > 0 ? canales : CANALES_DEFAULT;
   
