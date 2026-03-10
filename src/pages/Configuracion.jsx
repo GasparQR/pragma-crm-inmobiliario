@@ -84,51 +84,7 @@ export default function Configuracion() {
           <p className="text-slate-500 mt-1">Gestión de usuarios y preferencias</p>
         </div>
 
-        {/* Usuarios */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              Gestión de usuarios
-            </CardTitle>
-            <CardDescription>Invita a otros usuarios al equipo</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <form onSubmit={handleInviteUser} className="space-y-4">
-              <div className="space-y-2">
-                <Label>Email del usuario</Label>
-                <Input
-                  type="email"
-                  placeholder="usuario@email.com"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Rol</Label>
-                <Select value={inviteRole} onValueChange={setInviteRole} disabled={currentUser?.role !== "admin"}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="user">Usuario</SelectItem>
-                    {currentUser?.role === "admin" && (
-                      <SelectItem value="admin">Administrador</SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-                {currentUser?.role !== "admin" && (
-                  <p className="text-xs text-slate-400">Solo puedes invitar usuarios regulares</p>
-                )}
-              </div>
-              <Button type="submit" disabled={isLoading} className="w-full gap-2">
-                {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                Enviar invitación
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
+        
   
         
 
