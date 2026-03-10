@@ -152,41 +152,7 @@ export default function Configuracion() {
           </CardContent>
         </Card>
 
-        {/* Notificaciones */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="w-5 h-5" />
-              Notificaciones
-            </CardTitle>
-            <CardDescription>Gestiona cómo recibes notificaciones</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Seguimientos vencidos</p>
-                <p className="text-sm text-slate-500">Notificación diaria de seguimientos pendientes</p>
-              </div>
-              <Switch defaultChecked />
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Nuevas consultas</p>
-                <p className="text-sm text-slate-500">Notificación cuando se crea una consulta</p>
-              </div>
-              <Switch />
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Ventas concretadas</p>
-                <p className="text-sm text-slate-500">Notificación cuando se cierra una venta</p>
-              </div>
-              <Switch defaultChecked />
-            </div>
-          </CardContent>
-        </Card>
+        
 
         {/* Preferencias */}
         <Card>
