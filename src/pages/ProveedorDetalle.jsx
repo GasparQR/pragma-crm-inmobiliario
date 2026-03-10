@@ -34,6 +34,9 @@ export default function ProveedorDetalle() {
   const params = new URLSearchParams(location.search);
   const proveedorId = params.get("id");
   const esNuevo = proveedorId === "nuevo";
+  const { workspace } = useWorkspace();
+  const CATEGORIAS = CATEGORIAS_BY_INDUSTRY[workspace?.industry] || CATEGORIAS_BY_INDUSTRY.tech_apple;
+  const nombrePlaceholder = PLACEHOLDER_BY_INDUSTRY[workspace?.industry] || PLACEHOLDER_BY_INDUSTRY.tech_apple;
 
   const queryClient = useQueryClient();
 
