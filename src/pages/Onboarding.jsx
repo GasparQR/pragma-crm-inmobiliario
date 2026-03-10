@@ -91,7 +91,7 @@ export default function Onboarding() {
             <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight">
               Bienvenido a<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
-                AltatechCRM
+                PRAGMA CRM
               </span>
             </h1>
             <p className="text-slate-300 text-lg max-w-lg mx-auto leading-relaxed">
