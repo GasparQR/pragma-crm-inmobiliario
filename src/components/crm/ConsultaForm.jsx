@@ -329,7 +329,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
                     <SelectValue placeholder="Seleccionar" />
                   </SelectTrigger>
                   <SelectContent>
-                    {(categorias.length > 0 ? categorias : categoriasDefault).map(c => (
+                    {categoriasDefault.map(c => (
                       <SelectItem key={c} value={c}>{c}</SelectItem>
                     ))}
                   </SelectContent>
