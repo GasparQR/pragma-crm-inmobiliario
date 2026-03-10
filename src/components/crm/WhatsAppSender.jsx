@@ -30,26 +30,35 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
     }
   }, [selectedPlantilla, consulta]);
 
-  const loadPlantillas = async () => {
-    const data = await base44.entities.PlantillaWhatsApp.filter({ activa: true });
-    setPlantillas(data);
-    
-    // Auto-seleccionar plantilla sugerida
-    const sugerida = data.find(p => 
-      p.categoriaProducto === consulta?.categoriaProducto &&
-      (mapEtapaToPlantilla(consulta?.etapa) === p.etapa || p.etapa === "General")
-    ) || data.find(p => p.categoriaProducto === "General") || data[0];
-    
-    if (sugerida) {
-      setSelectedPlantilla(sugerida);
-    }
+  const mapEtapaToPlantilla = (etapa) => {
+    if (!etapa) return "General";
+    const lower = etapa.toLowerCase();
+    if (lower.includes("nuevo")) return "Nuevo";
+    if (lower.includes("seguimiento")) return "Seguimiento";
+    if (lower.includes("negociacion") || lower.includes("cierre")) return "Cierre";
+    if (lower.includes("postventa")) return "Postventa";
+    return "General";
   };
 
-  const mapEtapaToPlantilla = (etapa) => {
-    if (etapa === "Nuevo") return "Nuevo";
-    if (["Seguimiento1", "Seguimiento2"].includes(etapa)) return "Seguimiento";
-    if (etapa === "Negociacion") return "Cierre";
-    return "General";
+  const getRelevancia = (p) => {
+    const etapaMapeada = mapEtapaToPlantilla(consulta?.etapa);
+    const matchCategoria = p.categoriaProducto === consulta?.categoriaProducto;
+    const matchEtapa = p.etapa === etapaMapeada;
+    if (matchCategoria && matchEtapa) return 0;
+    if (matchCategoria && p.etapa === "General") return 1;
+    if (matchEtapa) return 2;
+    if (p.etapa === "General") return 3;
+    return 4;
+  };
+
+  const loadPlantillas = async () => {
+    const data = await base44.entities.PlantillaWhatsApp.filter({ activa: true });
+    const sorted = [...data].sort((a, b) => getRelevancia(a) - getRelevancia(b));
+    setPlantillas(sorted);
+    
+    if (sorted.length > 0) {
+      setSelectedPlantilla(sorted[0]);
+    }
   };
 
   const reemplazarVariables = (texto, data) => {
