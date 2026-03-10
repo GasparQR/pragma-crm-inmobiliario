@@ -129,57 +129,8 @@ export default function Configuracion() {
           </CardContent>
         </Card>
 
-        {/* Perfil */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="w-5 h-5" />
-              Perfil
-            </CardTitle>
-            <CardDescription>Información personal</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Nombre completo</Label>
-              <Input placeholder="Tu nombre" />
-            </div>
-            <div className="space-y-2">
-              <Label>Email</Label>
-              <Input type="email" placeholder="tu@email.com" disabled />
-              <p className="text-xs text-slate-400">El email no se puede modificar</p>
-            </div>
-            <Button>Guardar cambios</Button>
-          </CardContent>
-        </Card>
-
+  
         
-
-        {/* Preferencias */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="w-5 h-5" />
-              Preferencias
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Modo oscuro</p>
-                <p className="text-sm text-slate-500">Interfaz con tema oscuro</p>
-              </div>
-              <Switch />
-            </div>
-            <Separator />
-            <div className="space-y-2">
-              <Label>Moneda por defecto</Label>
-              <select className="w-full rounded-lg border border-slate-200 px-3 py-2">
-                <option value="USD">Dólares (USD)</option>
-                <option value="ARS">Pesos argentinos (ARS)</option>
-              </select>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Días hábiles */}
         <Card>
