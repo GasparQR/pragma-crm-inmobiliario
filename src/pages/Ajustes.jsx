@@ -1,16 +1,23 @@
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Settings, MessageSquare, Kanban } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeft, Settings, MessageSquare, Kanban, Users } from "lucide-react";
 
 const OPCIONES = [
   {
     title: "Configuración",
-    description: "Usuarios, perfil, notificaciones y preferencias generales",
+    description: "Perfil, preferencias generales y moneda",
     icon: Settings,
     page: "Configuracion",
     color: "bg-slate-100 text-slate-700"
+  },
+  {
+    title: "Miembros del Workspace",
+    description: "Invitá a tu equipo y gestioná roles de acceso",
+    icon: Users,
+    page: "MiembrosWorkspace",
+    color: "bg-violet-100 text-violet-700"
   },
   {
     title: "Plantillas WhatsApp",
