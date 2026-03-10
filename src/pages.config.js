@@ -59,6 +59,7 @@ import Home from './pages/Home';
 import Hoy from './pages/Hoy';
 import ImportarVentas from './pages/ImportarVentas';
 import ListasWhatsApp from './pages/ListasWhatsApp';
+import Onboarding from './pages/Onboarding';
 import Pipeline from './pages/Pipeline';
 import Plantillas from './pages/Plantillas';
 import Postventa from './pages/Postventa';
@@ -69,7 +70,7 @@ import Variables from './pages/Variables';
 import VentaDetalle from './pages/VentaDetalle';
 import Ventas from './pages/Ventas';
 import VentasDashboard from './pages/VentasDashboard';
-import Onboarding from './pages/Onboarding';
+import MiembrosWorkspace from './pages/MiembrosWorkspace';
 import __Layout from './Layout.jsx';
 
 
@@ -86,6 +87,7 @@ export const PAGES = {
     "Hoy": Hoy,
     "ImportarVentas": ImportarVentas,
     "ListasWhatsApp": ListasWhatsApp,
+    "Onboarding": Onboarding,
     "Pipeline": Pipeline,
     "Plantillas": Plantillas,
     "Postventa": Postventa,
@@ -96,7 +98,7 @@ export const PAGES = {
     "VentaDetalle": VentaDetalle,
     "Ventas": Ventas,
     "VentasDashboard": VentasDashboard,
-    "Onboarding": Onboarding,
+    "MiembrosWorkspace": MiembrosWorkspace,
 }
 
 export const pagesConfig = {
