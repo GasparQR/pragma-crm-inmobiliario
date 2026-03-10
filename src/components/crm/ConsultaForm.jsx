@@ -15,6 +15,21 @@ import moment from "moment";
 import { getNextBusinessDay } from "@/components/utils/dateUtils";
 
 const CANALES_DEFAULT = ["Instagram", "WhatsApp", "MercadoLibre", "Referido", "Local", "Otro"];
+
+const CATEGORIAS_BY_INDUSTRY = {
+  tech_apple: ["iPhone", "Mac", "iPad", "AirPods", "Apple Watch", "Accesorios", "Otro"],
+  real_estate: ["Departamento", "Casa", "Lote", "Oficina", "Local", "Galpón", "Otro"],
+};
+
+const PRODUCTO_PLACEHOLDER_BY_INDUSTRY = {
+  tech_apple: "iPhone 15 Pro Max",
+  real_estate: "Casa 3 amb. en Palermo",
+};
+
+const VARIANTE_PLACEHOLDER_BY_INDUSTRY = {
+  tech_apple: "256GB Negro",
+  real_estate: "2 dorm., 80m², con cochera",
+};
 const PRIORIDADES = ["Alta", "Media", "Baja"];
 const MOTIVOS_PERDIDA = ["Caro", "SinStock", "ComproOtro", "NoResponde", "Financiacion", "Otro"];
 
