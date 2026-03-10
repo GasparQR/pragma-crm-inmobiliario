@@ -316,7 +316,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
                 <Input 
                   value={formData.productoConsultado}
                   onChange={(e) => setFormData({ ...formData, productoConsultado: e.target.value })}
-                  placeholder="iPhone 15 Pro Max"
+                  placeholder={productoPlaceholder}
                 />
               </div>
               <div className="space-y-2">
@@ -329,7 +329,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
                     <SelectValue placeholder="Seleccionar" />
                   </SelectTrigger>
                   <SelectContent>
-                    {(categorias.length > 0 ? categorias : ["iPhone", "Mac", "iPad", "AirPods", "Apple Watch", "Accesorios", "Otro"]).map(c => (
+                    {(categorias.length > 0 ? categorias : categoriasDefault).map(c => (
                       <SelectItem key={c} value={c}>{c}</SelectItem>
                     ))}
                   </SelectContent>
@@ -340,7 +340,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
                 <Input 
                   value={formData.variante}
                   onChange={(e) => setFormData({ ...formData, variante: e.target.value })}
-                  placeholder="256GB Negro"
+                  placeholder={variantePlaceholder}
                 />
               </div>
               <div className="space-y-2">
