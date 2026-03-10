@@ -191,10 +191,19 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
                 <SelectValue placeholder="Seleccionar plantilla" />
               </SelectTrigger>
               <SelectContent>
-                {plantillas.map(p => (
+                {plantillas.map((p, index) => (
                   <SelectItem key={p.id} value={p.id}>
-                    {p.nombrePlantilla}
-                    {p.categoriaProducto && ` (${p.categoriaProducto})`}
+                    <div className="flex items-center gap-2">
+                      <span>{p.nombrePlantilla}</span>
+                      {index === 0 && (
+                        <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-medium">
+                          Sugerida
+                        </span>
+                      )}
+                      {p.etapa && p.etapa !== "General" && (
+                        <span className="text-xs text-slate-400">{p.etapa}</span>
+                      )}
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
