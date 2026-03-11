@@ -79,7 +79,7 @@ export default function EditorListaWhatsApp() {
       await base44.entities.ListaWhatsApp.create({
         ...form,
         nombre: `${form.nombre} (Copia)`,
-        workspace_id: workspace?.id,
+        workspace_id: form.workspace_id || workspace?.id,
         tags: form.tags ? form.tags.split(",").map(t => t.trim()) : [],
         estado: "Borrador"
       });
