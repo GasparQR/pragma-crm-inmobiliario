@@ -306,7 +306,7 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.entities.WorkspaceSettings.update(existingSettings[0].id, { ...settings, workspace_id });
     }
 
-    // 8) Marcar onboarding completado
+    // 10) Marcar onboarding completado
     await base44.asServiceRole.entities.Workspace.update(workspace_id, {
       industry,
       onboarding_completed: true,
