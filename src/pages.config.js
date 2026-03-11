@@ -60,7 +60,6 @@ import Hoy from './pages/Hoy';
 import ImportarVentas from './pages/ImportarVentas';
 import ListasWhatsApp from './pages/ListasWhatsApp';
 import MiembrosWorkspace from './pages/MiembrosWorkspace';
-import Onboarding from './pages/Onboarding';
 import Pipeline from './pages/Pipeline';
 import Plantillas from './pages/Plantillas';
 import Postventa from './pages/Postventa';
@@ -88,7 +87,6 @@ export const PAGES = {
     "ImportarVentas": ImportarVentas,
     "ListasWhatsApp": ListasWhatsApp,
     "MiembrosWorkspace": MiembrosWorkspace,
-    "Onboarding": Onboarding,
     "Pipeline": Pipeline,
     "Plantillas": Plantillas,
     "Postventa": Postventa,
