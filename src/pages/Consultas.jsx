@@ -243,7 +243,7 @@ export default function Consultas() {
             <TableHeader>
               <TableRow className="bg-slate-50/50">
                 <TableHead className="font-semibold">Contacto</TableHead>
-                <TableHead className="font-semibold">Producto</TableHead>
+                <TableHead className="font-semibold">Propiedad</TableHead>
                 <TableHead 
                   className="font-semibold cursor-pointer hover:bg-slate-100"
                   onClick={() => toggleSort("precioCotizado")}
