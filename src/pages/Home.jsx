@@ -19,7 +19,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import moment from "moment";
 
 const COLORS = ["#3b82f6", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
-const CANALES = ["Instagram", "WhatsApp", "MercadoLibre", "Referido", "Local", "Otro"];
+const CANALES = ["Portales", "Instagram", "WhatsApp", "Referido", "Cartel", "Web", "Otro"];
 
 export default function Home() {
   const [showForm, setShowForm] = useState(false);
@@ -254,7 +254,7 @@ export default function Home() {
             </CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle className="text-base">Productos más consultados</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">Propiedades más consultadas</CardTitle></CardHeader>
             <CardContent>
               {productosData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={220}>

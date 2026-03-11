@@ -27,15 +27,7 @@ export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // Onboarding sin layout
-  if (currentPageName === "Onboarding") {
-    return (
-      <WorkspaceProvider>
-        <Toaster position="top-right" richColors />
-        {children}
-      </WorkspaceProvider>
-    );
-  }
+
 
   return (
     <WorkspaceProvider>
