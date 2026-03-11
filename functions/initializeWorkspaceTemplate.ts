@@ -165,7 +165,7 @@ Deno.serve(async (req) => {
     if (!workspace) {
       workspace = await base44.asServiceRole.entities.Workspace.create({
         name: user.full_name ? `Workspace de ${user.full_name}` : "Mi Workspace",
-        owner_user_id: userKey,
+        owner_user_id: user.email,
         industry,
         onboarding_completed: false,
       });
