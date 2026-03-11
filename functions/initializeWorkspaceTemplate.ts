@@ -149,13 +149,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Industria inválida. Usar tech_apple o real_estate" }, { status: 400 });
     }
 
-    const userKey = user.id ?? user.email;
+    const userKey = user.email;
 
     // 1) Buscar workspace del usuario
     let members = await base44.asServiceRole.entities.WorkspaceMember.filter({ user_id: userKey }, null, 50);
-    if (!members?.length && userKey !== user.email) {
-      members = await base44.asServiceRole.entities.WorkspaceMember.filter({ user_id: user.email }, null, 50);
-    }
 
     let workspace = null;
     if (members?.length) {
