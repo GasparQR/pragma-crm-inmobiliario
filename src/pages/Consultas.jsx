@@ -213,12 +213,13 @@ export default function Consultas() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos los canales</SelectItem>
-                <SelectItem value="Portales">Portales</SelectItem>
+                <SelectItem value="Zona Prop">Zona Prop</SelectItem>
+                <SelectItem value="La voz del interior">La voz del interior</SelectItem>
+                <SelectItem value="Facebook">Facebook</SelectItem>
                 <SelectItem value="Instagram">Instagram</SelectItem>
-                <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                <SelectItem value="Estado WhatsApp">Estado WhatsApp</SelectItem>
                 <SelectItem value="Referido">Referido</SelectItem>
                 <SelectItem value="Cartel">Cartel</SelectItem>
-                <SelectItem value="Web">Web</SelectItem>
               </SelectContent>
             </Select>
             <Select value={filtroPrioridad} onValueChange={setFiltroPrioridad}>

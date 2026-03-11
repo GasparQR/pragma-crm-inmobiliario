@@ -13,8 +13,8 @@ import { User, Building2, Calendar, Plus } from "lucide-react";
 import moment from "moment";
 import { getNextBusinessDay } from "@/components/utils/dateUtils";
 
-const CANALES_DEFAULT = ["Portales", "Instagram", "WhatsApp", "Referido", "Cartel", "Web", "Otro"];
-const CATEGORIAS = ["Departamento", "Casa", "Lote", "Oficina", "Local", "Galpón", "Otro"];
+const CANALES_DEFAULT = ["Zona Prop", "La voz del interior", "Facebook", "Instagram", "Estado WhatsApp", "Referido", "Cartel"];
+const CATEGORIAS = ["Departamento", "Casa", "Duplex", "Lote", "Oficina", "Local", "Campo"];
 const PRIORIDADES = ["Alta", "Media", "Baja"];
 const MOTIVOS_PERDIDA = ["Caro", "ComproOtro", "NoResponde", "Financiacion", "Otro"];
 

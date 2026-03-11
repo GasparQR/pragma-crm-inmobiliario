@@ -19,7 +19,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import moment from "moment";
 
 const COLORS = ["#3b82f6", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
-const CANALES = ["Portales", "Instagram", "WhatsApp", "Referido", "Cartel", "Web", "Otro"];
+const CANALES = ["Zona Prop", "La voz del interior", "Facebook", "Instagram", "Estado WhatsApp", "Referido", "Cartel"];
 
 export default function Home() {
   const [showForm, setShowForm] = useState(false);
