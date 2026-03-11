@@ -168,6 +168,42 @@ export default function Hoy() {
     </Card>
   );
 
+  const PostventaItem = ({ venta, tipo }) => (
+    <Card className="hover:shadow-md transition-all border-l-4 border-l-emerald-400">
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <Star className="w-4 h-4 text-emerald-500" />
+              <h3 className="font-semibold text-slate-900">{venta.nombreSnapshot} {venta.apellidoSnapshot}</h3>
+              <Badge className="bg-emerald-100 text-emerald-700">Postventa</Badge>
+            </div>
+            <p className="text-sm text-slate-600 mb-1">{venta.productoSnapshot || venta.modelo}</p>
+            {venta.postventaNotas && (
+              <p className="text-xs text-slate-400">{venta.postventaNotas}</p>
+            )}
+            <div className="flex items-center gap-2 mt-2">
+              <Calendar className="w-3 h-3 text-slate-400" />
+              <span className={`text-xs ${tipo === "vencido" ? "text-red-600 font-medium" : "text-slate-500"}`}>
+                {moment(venta.proximoSeguimientoPostventa).format("DD/MM/YYYY")}
+                {tipo === "vencido" && " (vencido)"}
+              </span>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2 ml-4">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleMarcarPostventaCompletado(venta)}
+            >
+              <CheckCircle2 className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <div className="min-h-screen bg-slate-50/50 p-6">
       <div className="max-w-5xl mx-auto space-y-6">
