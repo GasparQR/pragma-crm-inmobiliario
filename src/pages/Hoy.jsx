@@ -76,6 +76,26 @@ export default function Hoy() {
     !["Concretado", "Perdido"].includes(c.etapa)
   );
 
+  // Postventa
+  const postventaHoy = ventas.filter(v =>
+    v.proximoSeguimientoPostventa &&
+    moment(v.proximoSeguimientoPostventa).isSame(today, 'day') &&
+    v.postventaEstado !== "Cerrado"
+  );
+
+  const postventaVencidos = ventas.filter(v =>
+    v.proximoSeguimientoPostventa &&
+    moment(v.proximoSeguimientoPostventa).isBefore(today, 'day') &&
+    v.postventaEstado !== "Cerrado"
+  );
+
+  const postventaProximos = ventas.filter(v =>
+    v.proximoSeguimientoPostventa &&
+    moment(v.proximoSeguimientoPostventa).isAfter(today, 'day') &&
+    moment(v.proximoSeguimientoPostventa).isBefore(today.clone().add(3, 'days'), 'day') &&
+    v.postventaEstado !== "Cerrado"
+  );
+
   const handleWhatsApp = (consulta) => {
     setSelectedConsulta(consulta);
     setShowWhatsApp(true);
