@@ -259,14 +259,14 @@ export default function Hoy() {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="vencidos" className="gap-2">
               <AlertCircle className="w-4 h-4" />
-              Vencidos ({vencidos.length})
+              Vencidos ({vencidos.length + postventaVencidos.length})
             </TabsTrigger>
             <TabsTrigger value="hoy" className="gap-2">
               <Calendar className="w-4 h-4" />
-              Hoy ({hoy.length})
+              Hoy ({hoy.length + postventaHoy.length})
             </TabsTrigger>
             <TabsTrigger value="proximos" className="gap-2">
-              Próximos ({proximos3d.length})
+              Próximos ({proximos3d.length + postventaProximos.length})
             </TabsTrigger>
           </TabsList>
 
