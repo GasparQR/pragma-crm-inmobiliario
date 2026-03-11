@@ -109,6 +109,14 @@ export default function Hoy() {
     });
   };
 
+  const handleMarcarPostventaCompletado = async (venta) => {
+    const nuevaFecha = moment().add(7, 'days').format("YYYY-MM-DD");
+    await updateVentaMutation.mutateAsync({
+      id: venta.id,
+      data: { proximoSeguimientoPostventa: nuevaFecha, postventaEstado: "Enviado", postventaUltimoContacto: new Date().toISOString() }
+    });
+  };
+
   const ConsultaItem = ({ consulta, tipo }) => (
     <Card className="hover:shadow-md transition-all">
       <CardContent className="p-4">
