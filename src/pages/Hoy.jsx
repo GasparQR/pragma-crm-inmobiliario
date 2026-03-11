@@ -271,9 +271,9 @@ export default function Hoy() {
           </TabsList>
 
           <TabsContent value="vencidos" className="space-y-3 mt-4">
-            {vencidos.length > 0 ? (
-              vencidos.map(c => <ConsultaItem key={c.id} consulta={c} tipo="vencido" />)
-            ) : (
+            {vencidos.map(c => <ConsultaItem key={c.id} consulta={c} tipo="vencido" />)}
+            {postventaVencidos.map(v => <PostventaItem key={v.id} venta={v} tipo="vencido" />)}
+            {vencidos.length === 0 && postventaVencidos.length === 0 && (
               <Card>
                 <CardContent className="text-center py-12">
                   <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
@@ -284,9 +284,9 @@ export default function Hoy() {
           </TabsContent>
 
           <TabsContent value="hoy" className="space-y-3 mt-4">
-            {hoy.length > 0 ? (
-              hoy.map(c => <ConsultaItem key={c.id} consulta={c} tipo="hoy" />)
-            ) : (
+            {hoy.map(c => <ConsultaItem key={c.id} consulta={c} tipo="hoy" />)}
+            {postventaHoy.map(v => <PostventaItem key={v.id} venta={v} tipo="hoy" />)}
+            {hoy.length === 0 && postventaHoy.length === 0 && (
               <Card>
                 <CardContent className="text-center py-12">
                   <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-4" />
@@ -297,9 +297,9 @@ export default function Hoy() {
           </TabsContent>
 
           <TabsContent value="proximos" className="space-y-3 mt-4">
-            {proximos3d.length > 0 ? (
-              proximos3d.map(c => <ConsultaItem key={c.id} consulta={c} tipo="proximo" />)
-            ) : (
+            {proximos3d.map(c => <ConsultaItem key={c.id} consulta={c} tipo="proximo" />)}
+            {postventaProximos.map(v => <PostventaItem key={v.id} venta={v} tipo="proximo" />)}
+            {proximos3d.length === 0 && postventaProximos.length === 0 && (
               <Card>
                 <CardContent className="text-center py-12">
                   <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-4" />
