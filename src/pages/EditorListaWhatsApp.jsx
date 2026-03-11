@@ -53,7 +53,8 @@ export default function EditorListaWhatsApp() {
         texto: l.texto || "",
         tags: l.tags?.join(", ") || "",
         vigenteDesde: l.vigenteDesde || "",
-        vigenteHasta: l.vigenteHasta || ""
+        vigenteHasta: l.vigenteHasta || "",
+        workspace_id: l.workspace_id || ""
       });
     }
   }, [lista]);
