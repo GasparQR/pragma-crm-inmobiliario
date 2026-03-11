@@ -32,7 +32,8 @@ export default function EditorListaWhatsApp() {
     texto: "",
     tags: "",
     vigenteDesde: "",
-    vigenteHasta: ""
+    vigenteHasta: "",
+    workspace_id: ""
   });
 
   const { data: lista } = useQuery({
