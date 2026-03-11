@@ -1,20 +1,21 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 const PIPELINE = [
-  { nombre: "Nuevo",       orden: 1, color: "bg-blue-500",    is_won: false, is_lost: false },
-  { nombre: "Seguimiento", orden: 2, color: "bg-amber-500",   is_won: false, is_lost: false },
-  { nombre: "Visita",      orden: 3, color: "bg-violet-500",  is_won: false, is_lost: false },
-  { nombre: "Concretado",  orden: 4, color: "bg-emerald-500", is_won: true,  is_lost: false },
-  { nombre: "Perdido",     orden: 5, color: "bg-red-500",     is_won: false, is_lost: true  },
+  { nombre: "Nuevo",      orden: 1, color: "bg-blue-500",    is_won: false, is_lost: false },
+  { nombre: "Visita",     orden: 2, color: "bg-violet-500",  is_won: false, is_lost: false },
+  { nombre: "Post Visita",orden: 3, color: "bg-amber-500",   is_won: false, is_lost: false },
+  { nombre: "Concretado", orden: 4, color: "bg-emerald-500", is_won: true,  is_lost: false },
+  { nombre: "Perdido",    orden: 5, color: "bg-red-500",     is_won: false, is_lost: true  },
 ];
 
 const TAGS = [
-  { name: "Portales",          type: "source" },
-  { name: "Instagram",         type: "source" },
-  { name: "WhatsApp",          type: "source" },
-  { name: "Referido",          type: "source" },
-  { name: "Cartel",            type: "source" },
-  { name: "Web",               type: "source" },
+  { name: "Zona Prop",          type: "source" },
+  { name: "La voz del interior",type: "source" },
+  { name: "Facebook",           type: "source" },
+  { name: "Instagram",          type: "source" },
+  { name: "Estado WhatsApp",    type: "source" },
+  { name: "Referido",           type: "source" },
+  { name: "Cartel",             type: "source" },
   { name: "Venta",             type: "operation" },
   { name: "Alquiler",          type: "operation" },
   { name: "Alquiler temporal", type: "operation" },
@@ -37,7 +38,7 @@ const TAGS = [
 
 const CUSTOM_FIELDS = [
   { entity: "lead", key: "operacion",       label: "Operación",                      field_type: "select",      options: ["Venta","Alquiler","Alquiler temporal"], orden: 1 },
-  { entity: "lead", key: "tipo_propiedad",  label: "Tipo de propiedad",              field_type: "select",      options: ["Departamento","Casa","Lote","Oficina","Local","Galpón"], orden: 2 },
+  { entity: "lead", key: "tipo_propiedad",  label: "Tipo de propiedad",              field_type: "select",      options: ["Departamento","Casa","Duplex","Lote","Oficina","Local","Campo"], orden: 2 },
   { entity: "lead", key: "zona_preferida",  label: "Zona preferida",                 field_type: "multiselect", options: ["Nueva Córdoba","Centro","General Paz","Cerro","Güemes","Zona Norte"], orden: 3 },
   { entity: "lead", key: "presupuesto",     label: "Presupuesto",                    field_type: "currency",    orden: 4 },
   { entity: "lead", key: "moneda_pres",     label: "Moneda",                         field_type: "select",      options: ["USD","ARS"], orden: 5 },
