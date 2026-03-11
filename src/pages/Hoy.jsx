@@ -230,7 +230,8 @@ export default function Hoy() {
               <CardTitle className="text-sm font-medium text-slate-500">Hoy</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">{hoy.length}</p>
+              <p className="text-3xl font-bold">{hoy.length + postventaHoy.length}</p>
+              {postventaHoy.length > 0 && <p className="text-xs text-emerald-600 mt-1">{postventaHoy.length} postventa</p>}
             </CardContent>
           </Card>
           <Card className="border-red-200 bg-red-50/50">
@@ -238,7 +239,8 @@ export default function Hoy() {
               <CardTitle className="text-sm font-medium text-red-600">Vencidos</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-red-600">{vencidos.length}</p>
+              <p className="text-3xl font-bold text-red-600">{vencidos.length + postventaVencidos.length}</p>
+              {postventaVencidos.length > 0 && <p className="text-xs text-red-500 mt-1">{postventaVencidos.length} postventa</p>}
             </CardContent>
           </Card>
           <Card className="border-blue-200 bg-blue-50/50">
@@ -246,7 +248,8 @@ export default function Hoy() {
               <CardTitle className="text-sm font-medium text-blue-600">Próximos 3 días</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-blue-600">{proximos3d.length}</p>
+              <p className="text-3xl font-bold text-blue-600">{proximos3d.length + postventaProximos.length}</p>
+              {postventaProximos.length > 0 && <p className="text-xs text-blue-500 mt-1">{postventaProximos.length} postventa</p>}
             </CardContent>
           </Card>
         </div>
