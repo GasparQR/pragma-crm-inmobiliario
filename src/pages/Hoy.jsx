@@ -33,11 +33,25 @@ export default function Hoy() {
     enabled: !!workspace
   });
 
+  const { data: ventas = [], refetch: refetchVentas } = useQuery({
+    queryKey: ['ventas-postventa-hoy', workspace?.id],
+    queryFn: () => workspace ? base44.entities.Venta.filter({ workspace_id: workspace.id, postventaActiva: true }, "-created_date", 500) : [],
+    enabled: !!workspace
+  });
+
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Consulta.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['consultas-hoy'] });
       toast.success("Actualizado");
+    }
+  });
+
+  const updateVentaMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Venta.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ventas-postventa-hoy'] });
+      toast.success("Postventa actualizada");
     }
   });
 
