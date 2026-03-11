@@ -27,6 +27,7 @@ export default function EditorListaWhatsApp() {
   const [form, setForm] = useState({
     nombre: "",
     categoria: "General",
+
     proveedor: "",
     estado: "Borrador",
     texto: "",
@@ -159,12 +160,9 @@ export default function EditorListaWhatsApp() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="iPhone">iPhone</SelectItem>
-                        <SelectItem value="Mac">Mac</SelectItem>
-                        <SelectItem value="iPad">iPad</SelectItem>
-                        <SelectItem value="AirPods">AirPods</SelectItem>
-                        <SelectItem value="Apple Watch">Apple Watch</SelectItem>
-                        <SelectItem value="Accesorios">Accesorios</SelectItem>
+                        <SelectItem value="Venta">Venta</SelectItem>
+                        <SelectItem value="Alquiler">Alquiler</SelectItem>
+                        <SelectItem value="Alquiler Temporal">Alquiler Temporal</SelectItem>
                         <SelectItem value="General">General</SelectItem>
                       </SelectContent>
                     </Select>

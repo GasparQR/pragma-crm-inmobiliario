@@ -186,7 +186,7 @@ export default function Consultas() {
             <div className="relative flex-1 min-w-[200px] max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
-                placeholder="Buscar por nombre, teléfono o producto..."
+                placeholder="Buscar por nombre, teléfono o propiedad..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9"
@@ -213,11 +213,12 @@ export default function Consultas() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos los canales</SelectItem>
+                <SelectItem value="Portales">Portales</SelectItem>
                 <SelectItem value="Instagram">Instagram</SelectItem>
                 <SelectItem value="WhatsApp">WhatsApp</SelectItem>
-                <SelectItem value="MercadoLibre">MercadoLibre</SelectItem>
                 <SelectItem value="Referido">Referido</SelectItem>
-                <SelectItem value="Local">Local</SelectItem>
+                <SelectItem value="Cartel">Cartel</SelectItem>
+                <SelectItem value="Web">Web</SelectItem>
               </SelectContent>
             </Select>
             <Select value={filtroPrioridad} onValueChange={setFiltroPrioridad}>

@@ -34,10 +34,6 @@ export function WorkspaceProvider({ children }) {
           setWorkspace(ws);
           setWorkspaceMember(adminMembership);
 
-          // Si onboarding no está completado → ir a onboarding
-          if (!ws.onboarding_completed && window.location.pathname !== createPageUrl("Onboarding")) {
-            window.location.href = createPageUrl("Onboarding");
-          }
           return;
         }
       }
@@ -57,8 +53,11 @@ export function WorkspaceProvider({ children }) {
       setWorkspace(newWorkspace);
       setWorkspaceMember(newMember);
 
-      if (window.location.pathname !== createPageUrl("Onboarding")) {
-        window.location.href = createPageUrl("Onboarding");
+      // Auto-inicializar con template inmobiliario
+      try {
+        await base44.functions.invoke("initializeWorkspaceTemplate", {});
+      } catch (e) {
+        console.warn("Error al inicializar template:", e);
       }
     } catch (err) {
       console.error("Error bootstrapping workspace:", err);
