@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useCurrentUser } from "@/components/hooks/useCurrentUser";
+import { useWorkspace } from "@/components/context/WorkspaceContext";
 import { ArrowLeft, Copy, Archive, Save } from "lucide-react";
 import { toast } from "sonner";
 
