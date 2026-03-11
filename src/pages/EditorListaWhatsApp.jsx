@@ -17,6 +17,7 @@ import { toast } from "sonner";
 export default function EditorListaWhatsApp() {
   const navigate = useNavigate();
   const { data: currentUser } = useCurrentUser();
+  const { workspace } = useWorkspace();
   const queryClient = useQueryClient();
 
   const params = new URLSearchParams(window.location.search);
