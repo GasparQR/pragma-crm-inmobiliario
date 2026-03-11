@@ -74,7 +74,7 @@ export default function Layout({ children, currentPageName }) {
           {!sidebarCollapsed && (
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-bold text-sm">A</span>
+                <span className="text-white font-bold text-sm">P</span>
               </div>
               <span className="font-bold text-slate-900">PRAGMA CRM</span>
             </div>
