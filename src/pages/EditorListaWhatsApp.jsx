@@ -96,6 +96,7 @@ export default function EditorListaWhatsApp() {
 
     saveMutation.mutate({
       ...form,
+      workspace_id: workspace?.id,
       tags: form.tags ? form.tags.split(",").map(t => t.trim()) : []
     });
   };
