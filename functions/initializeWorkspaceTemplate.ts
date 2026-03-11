@@ -288,7 +288,17 @@ Deno.serve(async (req) => {
     // 6) Custom Fields
     const cfResult = await upsertMany(base44, "CustomField", customFields.map((f) => ({ ...f, workspace_id })), ["workspace_id", "key"]);
 
-    // 7) Settings
+    // 7) Listas WhatsApp — borrar las existentes del workspace y recrear según rubro
+    const listasTemplate = industry === "tech_apple" ? TECH_APPLE_LISTAS : REAL_ESTATE_LISTAS;
+    const existingListas = await base44.asServiceRole.entities.ListaWhatsApp.filter({ workspace_id }, null, 500);
+    for (const lista of existingListas) {
+      await base44.asServiceRole.entities.ListaWhatsApp.delete(lista.id);
+    }
+    for (const lista of listasTemplate) {
+      await base44.asServiceRole.entities.ListaWhatsApp.create({ ...lista, workspace_id });
+    }
+
+    // 8) Settings
     const existingSettings = await base44.asServiceRole.entities.WorkspaceSettings.filter({ workspace_id }, null, 1);
     if (!existingSettings?.length) {
       await base44.asServiceRole.entities.WorkspaceSettings.create({ ...settings, workspace_id });
