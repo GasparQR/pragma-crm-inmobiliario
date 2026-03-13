@@ -209,22 +209,27 @@ export default function Configuracion() {
               <Database className="w-5 h-5" />
               Gestión de datos
             </CardTitle>
-            <CardDescription>Exportar o eliminar tus datos</CardDescription>
+            <CardDescription>Exportá todos tus datos: consultas, contactos, ventas y propiedades</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Button variant="outline" className="w-full">
-                Exportar todos los datos (CSV)
-              </Button>
-            </div>
-            <Separator />
-            <div>
-              <p className="text-sm text-slate-500 mb-2">Zona peligrosa</p>
-              <Button variant="destructive" className="w-full gap-2">
-                <Trash2 className="w-4 h-4" />
-                Eliminar todas las consultas
-              </Button>
-            </div>
+          <CardContent className="space-y-3">
+            <Button
+              variant="outline"
+              className="w-full gap-2"
+              onClick={handleExportCSV}
+              disabled={exportingCSV}
+            >
+              {exportingCSV ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
+              Exportar todos los datos (CSV)
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full gap-2"
+              onClick={handleExportExcel}
+              disabled={exportingExcel}
+            >
+              {exportingExcel ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
+              Exportar todos los datos (Excel)
+            </Button>
           </CardContent>
         </Card>
 
