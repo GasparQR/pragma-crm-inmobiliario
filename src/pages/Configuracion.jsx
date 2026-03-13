@@ -156,7 +156,7 @@ export default function Configuracion() {
         </Card>
 
         <div className="text-center text-sm text-slate-400 py-4">
-          TechCRM v1.0 - Mini CRM para ventas por WhatsApp
+          PRAGMACRM INMOBILIARIO v1.0 - Mini CRM para ventas por WhatsApp - Rubro Inmobiliario
         </div>
       </div>
     </div>
