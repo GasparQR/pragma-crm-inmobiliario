@@ -44,28 +44,102 @@ export default function Configuracion() {
     }
   };
 
-  const handleInviteUser = async (e) => {
-    e.preventDefault();
-    if (!inviteEmail) {
-      toast.error("Por favor ingresa un email");
-      return;
-    }
+  const fetchAllData = async () => {
+    const wsId = workspace?.id;
+    const [consultas, contactos, ventas, propiedades] = await Promise.all([
+      base44.entities.Consulta.filter({ workspace_id: wsId }),
+      base44.entities.Contacto.filter({ workspace_id: wsId }),
+      base44.entities.Venta.filter({ workspace_id: wsId }),
+      base44.entities.Property.filter({ workspace_id: wsId }),
+    ]);
+    return { consultas, contactos, ventas, propiedades };
+  };
 
-    if (inviteRole === "admin" && currentUser?.role !== "admin") {
-      toast.error("Solo los administradores pueden invitar otros administradores");
-      return;
-    }
+  const flattenToCSV = (label, rows) => {
+    if (!rows || rows.length === 0) return `${label}\nSin datos\n\n`;
+    const keys = Object.keys(rows[0]);
+    const header = keys.join(",");
+    const body = rows.map(row =>
+      keys.map(k => {
+        const val = row[k];
+        if (val === null || val === undefined) return "";
+        const str = Array.isArray(val) ? val.join(";") : String(val);
+        return `"${str.replace(/"/g, '""')}"`;
+      }).join(",")
+    ).join("\n");
+    return `${label}\n${header}\n${body}\n\n`;
+  };
 
-    setIsLoading(true);
+  const handleExportCSV = async () => {
+    setExportingCSV(true);
     try {
-      await base44.users.inviteUser(inviteEmail, inviteRole);
-      toast.success(`Invitación enviada a ${inviteEmail}`);
-      setInviteEmail("");
-      setInviteRole("user");
-    } catch (error) {
-      toast.error("Error al enviar la invitación");
+      const { consultas, contactos, ventas, propiedades } = await fetchAllData();
+      let content = "";
+      content += flattenToCSV("=== CONSULTAS ===", consultas);
+      content += flattenToCSV("=== CONTACTOS ===", contactos);
+      content += flattenToCSV("=== VENTAS ===", ventas);
+      content += flattenToCSV("=== PROPIEDADES ===", propiedades);
+
+      const blob = new Blob(["\uFEFF" + content], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `pragma-crm-export-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Exportación CSV completada");
+    } catch (e) {
+      toast.error("Error al exportar");
     } finally {
-      setIsLoading(false);
+      setExportingCSV(false);
+    }
+  };
+
+  const handleExportExcel = async () => {
+    setExportingExcel(true);
+    try {
+      const { consultas, contactos, ventas, propiedades } = await fetchAllData();
+
+      // Build HTML table-based Excel (works in all browsers without extra libraries)
+      const buildTable = (label, rows) => {
+        if (!rows || rows.length === 0) return `<tr><td colspan="1"><b>${label} - Sin datos</b></td></tr>`;
+        const keys = Object.keys(rows[0]);
+        const header = `<tr style="background:#1e293b;color:white;">${keys.map(k => `<th>${k}</th>`).join("")}</tr>`;
+        const body = rows.map(row =>
+          `<tr>${keys.map(k => {
+            const val = row[k];
+            const str = val === null || val === undefined ? "" : Array.isArray(val) ? val.join("; ") : String(val);
+            return `<td>${str}</td>`;
+          }).join("")}</tr>`
+        ).join("");
+        return `<tr><td colspan="${keys.length}" style="background:#0f172a;color:white;font-weight:bold;font-size:14px;padding:8px;">${label}</td></tr>${header}${body}<tr><td colspan="${keys.length}"></td></tr>`;
+      };
+
+      const html = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+        <head><meta charset="utf-8"/></head>
+        <body>
+          <table border="1">
+            ${buildTable("CONSULTAS", consultas)}
+            ${buildTable("CONTACTOS", contactos)}
+            ${buildTable("VENTAS", ventas)}
+            ${buildTable("PROPIEDADES", propiedades)}
+          </table>
+        </body></html>
+      `;
+
+      const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `pragma-crm-export-${new Date().toISOString().slice(0,10)}.xls`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Exportación Excel completada");
+    } catch (e) {
+      toast.error("Error al exportar");
+    } finally {
+      setExportingExcel(false);
     }
   };
 
