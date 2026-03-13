@@ -16,12 +16,12 @@ import { useWorkspace } from "@/components/context/WorkspaceContext";
 export default function Configuracion() {
   const { data: currentUser } = useCurrentUser();
   const queryClient = useQueryClient();
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState("user");
-  const [isLoading, setIsLoading] = useState(false);
+  const { workspace } = useWorkspace();
   const [consultaDays, setConsultaDays] = useState(3);
   const [postventaDays, setPostventaDays] = useState(7);
   const [savingDays, setSavingDays] = useState(false);
+  const [exportingCSV, setExportingCSV] = useState(false);
+  const [exportingExcel, setExportingExcel] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
