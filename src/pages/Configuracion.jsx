@@ -3,16 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Bell, User, Shield, Database, Trash2, Users, Loader2, Calendar } from "lucide-react";
+import { ArrowLeft, Database, Loader2, Calendar, FileDown, FileSpreadsheet } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/components/hooks/useCurrentUser";
 import { useQueryClient } from "@tanstack/react-query";
+import { useWorkspace } from "@/components/context/WorkspaceContext";
 
 export default function Configuracion() {
   const { data: currentUser } = useCurrentUser();
