@@ -44,7 +44,7 @@ export default function Layout({ children, currentPageName }) {
           >
             <Menu className="w-5 h-5" />
           </Button>
-          <span className="font-bold text-slate-900">PRAGMA CRM</span>
+          <span className="font-bold text-slate-900">PRAGMA CRM INMO</span>
         </div>
       </header>
 
