@@ -43,6 +43,7 @@ export default function VentaForm({ open, onOpenChange, consulta, onVentaCreada,
 
   const [gananciaCalculada, setGananciaCalculada] = useState(null);
   const [modoGuardado, setModoGuardado] = useState("borrador"); // "borrador" o "finalizada"
+  const [submitting, setSubmitting] = useState(false);
 
   const { data: proveedores = [] } = useQuery({
     queryKey: ['proveedores-activos', workspace?.id],

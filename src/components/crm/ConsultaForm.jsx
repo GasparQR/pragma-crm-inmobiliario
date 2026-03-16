@@ -30,6 +30,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
   const [contactos, setContactos] = useState([]);
   const [showNewContact, setShowNewContact] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const { workspace } = useWorkspace();
 
   const { data: etapas = [] } = useQuery({

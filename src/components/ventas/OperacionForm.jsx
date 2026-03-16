@@ -59,6 +59,7 @@ export default function OperacionForm({ open, onOpenChange, consulta, onOperacio
 
   const [formData, setFormData] = useState(defaultForm);
   const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
   // Calculated values
   const honorariosTotal = formData.precioOperacion && formData.honorariosPct
