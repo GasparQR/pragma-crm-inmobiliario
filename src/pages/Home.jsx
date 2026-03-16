@@ -48,43 +48,35 @@ export default function Home() {
   const pendientesHoy = consultas.filter(c => 
     c.proximoSeguimiento && 
     moment(c.proximoSeguimiento).isSame(today, 'day') &&
-    !["Concretado", "Perdido"].includes(c.etapa)
+    !["Operación cerrada", "No concretado"].includes(c.etapa)
   );
   
   const vencidos = consultas.filter(c => 
     c.proximoSeguimiento && 
     moment(c.proximoSeguimiento).isBefore(today, 'day') &&
-    !["Concretado", "Perdido"].includes(c.etapa)
+    !["Operación cerrada", "No concretado"].includes(c.etapa)
   );
 
-  const enNegociacion = consultas.filter(c => c.etapa === "Negociacion").length;
-  
   const concretados7d = consultas.filter(c => 
-    c.etapa === "Concretado" && 
+    c.etapa === "Operación cerrada" && 
     moment(c.updated_date).isAfter(today.clone().subtract(7, 'days'))
   ).length;
   
   const concretados30d = consultas.filter(c => 
-    c.etapa === "Concretado" && 
+    c.etapa === "Operación cerrada" && 
     moment(c.updated_date).isAfter(today.clone().subtract(30, 'days'))
   ).length;
 
   // Dashboard avanzado KPIs
   const last7Days = consultas.filter(c => moment(c.created_date).isAfter(today.clone().subtract(7, 'days')));
   const last30Days = consultas.filter(c => moment(c.created_date).isAfter(today.clone().subtract(30, 'days')));
-  const concretados = consultas.filter(c => c.etapa === "Concretado");
-  const perdidos = consultas.filter(c => c.etapa === "Perdido");
-  const activos = consultas.filter(c => !["Concretado", "Perdido"].includes(c.etapa));
+  const concretados = consultas.filter(c => c.etapa === "Operación cerrada");
+  const perdidos = consultas.filter(c => c.etapa === "No concretado");
+  const activos = consultas.filter(c => !["Operación cerrada", "No concretado"].includes(c.etapa));
   const tasaConversion = consultas.length > 0 ? ((concretados.length / consultas.length) * 100).toFixed(1) : 0;
 
-  const ventasMesActual = ventas.filter(v => v.fecha && moment(v.fecha).isSame(today, 'month') && v.estado === "Finalizada");
-  const gananciaMensual = ventasMesActual.reduce((acc, v) => acc + (v.ganancia || 0), 0);
-
-  const seguimientosHoy = consultas.filter(c =>
-    c.proximoSeguimiento &&
-    moment(c.proximoSeguimiento).isSameOrBefore(today, 'day') &&
-    !["Concretado", "Perdido"].includes(c.etapa)
-  );
+  const ventasMesActual = ventas.filter(v => v.fecha && moment(v.fecha).isSame(today, 'month') && v.estado !== "Caída");
+  const gananciaMensual = ventasMesActual.reduce((acc, v) => acc + (v.honorariosTotal || 0), 0);
 
   const leadsPorCanal = CANALES.reduce((acc, canal) => {
     acc[canal] = consultas.filter(c => c.canalOrigen === canal).length;
@@ -94,7 +86,7 @@ export default function Home() {
 
   const productosCounts = {};
   consultas.forEach(c => {
-    const cat = c.categoriaProducto || "Otro";
+    const cat = c.tipoPropiedad || c.categoriaProducto || "Otro";
     productosCounts[cat] = (productosCounts[cat] || 0) + 1;
   });
   const productosData = Object.entries(productosCounts).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name, value]) => ({ name, value }));
@@ -110,10 +102,10 @@ export default function Home() {
 
   const TILES = [
     { title: "Pipeline", desc: "Vista Kanban", icon: Kanban, page: "Pipeline", color: "bg-blue-500" },
-    { title: "Consultas", desc: "Lista completa", icon: List, page: "Consultas", color: "bg-cyan-500" },
+    { title: "Consultas", desc: "Leads activos", icon: List, page: "Consultas", color: "bg-cyan-500" },
     { title: "Hoy", desc: "Seguimientos", icon: Calendar, page: "Hoy", color: "bg-amber-500", badge: pendientesHoy.length + vencidos.length },
-    { title: "Contactos", desc: "Gestión", icon: Users, page: "Contactos", color: "bg-purple-500" },
-    { title: "Plantillas", desc: "WhatsApp", icon: MessageSquare, page: "Plantillas", color: "bg-emerald-500" },
+    { title: "Operaciones", desc: "Cierre y honorarios", icon: MessageCircle, page: "Operaciones", color: "bg-emerald-500" },
+    { title: "Propietarios", desc: "Captaciones", icon: Users, page: "Propietarios", color: "bg-purple-500" },
     { title: "Reportes", desc: "Analytics", icon: BarChart3, page: "Reportes", color: "bg-orange-500" },
   ];
 
@@ -142,9 +134,9 @@ export default function Home() {
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
           <KPICard title="Leads últimos 7d" value={last7Days.length} subtitle={`${last30Days.length} en 30 días`} icon={Users} />
           <KPICard title="Tasa de conversión" value={`${tasaConversion}%`} subtitle={`${concretados.length} concretados`} icon={TrendingUp} />
-          <KPICard title="Ganancia Mensual" value={`$${gananciaMensual.toFixed(0)}`} subtitle={`${ventasMesActual.length} ventas`} icon={DollarSign} />
+          <KPICard title="Honorarios del mes" value={`$${gananciaMensual.toFixed(0)}`} subtitle={`${ventasMesActual.length} operaciones`} icon={DollarSign} />
           <KPICard title="Activos" value={activos.length} subtitle="En seguimiento" icon={Clock} />
-          <KPICard title="Perdidos" value={perdidos.length} subtitle={`${((perdidos.length / (consultas.length || 1)) * 100).toFixed(0)}% del total`} icon={XCircle} />
+          <KPICard title="No concretados" value={perdidos.length} subtitle={`${((perdidos.length / (consultas.length || 1)) * 100).toFixed(0)}% del total`} icon={XCircle} />
         </div>
 
         {/* Acciones Rápidas */}
@@ -254,7 +246,7 @@ export default function Home() {
             </CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle className="text-base">Propiedades más consultadas</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">Tipos de propiedad más buscados</CardTitle></CardHeader>
             <CardContent>
               {productosData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={220}>
