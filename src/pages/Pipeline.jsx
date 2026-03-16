@@ -27,7 +27,7 @@ export default function Pipeline() {
 
   const { data: consultas = [], refetch } = useQuery({
     queryKey: ['consultas-pipeline', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Consulta.filter({ workspace_id: workspace.id }, "-created_date", 500) : [],
+    queryFn: () => workspace ? base44.entities.Consulta.filter({ workspace_id: workspace.id }, "-created_date", 2000) : [],
     enabled: !!workspace
   });
 
@@ -79,12 +79,27 @@ export default function Pipeline() {
 
   const handleVentaCreada = async () => {
     if (selectedConsulta) {
+      // Buscar la etapa de cierre real del pipeline configurado
+      const etapaCierre = etapas.find(e =>
+        e.nombre.toLowerCase().includes("cerrad") ||
+        e.nombre.toLowerCase().includes("concret") ||
+        e.nombre.toLowerCase().includes("finaliz") ||
+        e.nombre.toLowerCase().includes("operaci")
+      );
+      const nombreEtapaCierre = etapaCierre?.nombre || "Operación cerrada";
+
       await base44.entities.Consulta.update(selectedConsulta.id, {
-        etapa: "Concretado",
+        etapa: nombreEtapaCierre,
         concretado: true
       });
-      queryClient.invalidateQueries({ queryKey: ['consultas-pipeline'] });
-      toast.success("Venta registrada y consulta marcada como Concretado");
+
+      // Invalidar TODAS las queries que dependen de consultas y ventas
+      queryClient.invalidateQueries({ queryKey: ['consultas-pipeline', workspace?.id] });
+      queryClient.invalidateQueries({ queryKey: ['consultas-home', workspace?.id] });
+      queryClient.invalidateQueries({ queryKey: ['consultas-list', workspace?.id] });
+      queryClient.invalidateQueries({ queryKey: ['ventas-home', workspace?.id] });
+      queryClient.invalidateQueries({ queryKey: ['ventas-dashboard', workspace?.id] });
+      toast.success(`¡Operación registrada! Lead movido a "${nombreEtapaCierre}"`);
     }
     setShowVentaForm(false);
     setSelectedConsulta(null);
