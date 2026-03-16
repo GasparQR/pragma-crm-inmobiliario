@@ -48,35 +48,39 @@ export default function Home() {
   const pendientesHoy = consultas.filter(c => 
     c.proximoSeguimiento && 
     moment(c.proximoSeguimiento).isSame(today, 'day') &&
-    !["Operación cerrada", "No concretado"].includes(c.etapa)
+    !c.concretado && c.etapa !== "No concretado"
   );
   
   const vencidos = consultas.filter(c => 
     c.proximoSeguimiento && 
     moment(c.proximoSeguimiento).isBefore(today, 'day') &&
-    !["Operación cerrada", "No concretado"].includes(c.etapa)
+    !c.concretado && c.etapa !== "No concretado"
   );
 
   const concretados7d = consultas.filter(c => 
-    c.etapa === "Operación cerrada" && 
+    c.concretado === true && 
     moment(c.updated_date).isAfter(today.clone().subtract(7, 'days'))
   ).length;
   
   const concretados30d = consultas.filter(c => 
-    c.etapa === "Operación cerrada" && 
+    c.concretado === true && 
     moment(c.updated_date).isAfter(today.clone().subtract(30, 'days'))
   ).length;
 
   // Dashboard avanzado KPIs
   const last7Days = consultas.filter(c => moment(c.created_date).isAfter(today.clone().subtract(7, 'days')));
   const last30Days = consultas.filter(c => moment(c.created_date).isAfter(today.clone().subtract(30, 'days')));
-  const concretados = consultas.filter(c => c.etapa === "Operación cerrada");
-  const perdidos = consultas.filter(c => c.etapa === "No concretado");
-  const activos = consultas.filter(c => !["Operación cerrada", "No concretado"].includes(c.etapa));
+  const concretados = consultas.filter(c => c.concretado === true);
+  const perdidos = consultas.filter(c => c.etapa === "No concretado" || c.etapa === "Perdido");
+  const activos = consultas.filter(c => !c.concretado && c.etapa !== "No concretado" && c.etapa !== "Perdido");
   const tasaConversion = consultas.length > 0 ? ((concretados.length / consultas.length) * 100).toFixed(1) : 0;
 
-  const ventasMesActual = ventas.filter(v => v.fecha && moment(v.fecha).isSame(today, 'month') && v.estado !== "Caída");
-  const gananciaMensual = ventasMesActual.reduce((acc, v) => acc + (v.honorariosTotal || 0), 0);
+  const ventasMesActual = ventas.filter(v =>
+    v.fecha &&
+    moment(v.fecha).isSame(today, 'month') &&
+    !["Caída", "Anulada"].includes(v.estado)
+  );
+  const gananciaMensual = ventasMesActual.reduce((acc, v) => acc + (v.honorariosTotal || v.ganancia || 0), 0);
 
   const leadsPorCanal = CANALES.reduce((acc, canal) => {
     acc[canal] = consultas.filter(c => c.canalOrigen === canal).length;
