@@ -150,9 +150,9 @@ export default function Postventa() {
         <TableHeader>
           <TableRow className="bg-slate-50/50">
             <TableHead className="font-semibold">Cliente</TableHead>
-            <TableHead className="font-semibold">Producto</TableHead>
-            <TableHead className="font-semibold">Fecha Venta</TableHead>
-            <TableHead className="font-semibold">Ganancia</TableHead>
+            <TableHead className="font-semibold">Propiedad</TableHead>
+            <TableHead className="font-semibold">Fecha Operación</TableHead>
+            <TableHead className="font-semibold">Honorarios</TableHead>
             <TableHead className="font-semibold">Próx. Seguimiento</TableHead>
             <TableHead className="font-semibold">Estado</TableHead>
             <TableHead className="font-semibold text-right">Acciones</TableHead>
@@ -176,19 +176,19 @@ export default function Postventa() {
                   )}
                 </TableCell>
                 <TableCell>
-                  <p className="text-sm font-medium">{venta.productoSnapshot || venta.modelo || "-"}</p>
+                  <p className="text-sm font-medium">{venta.propiedadDescripcion || venta.productoSnapshot || "-"}</p>
                   <Badge variant="outline" className="text-xs mt-1">
                     Paso {(venta.postventaPaso || 0) + 1}/2
                   </Badge>
                 </TableCell>
                 <TableCell>
                   <p className="text-sm">{venta.fecha ? moment(venta.fecha).format("DD/MM/YY") : "-"}</p>
-                  {venta.marketplace && <p className="text-xs text-slate-400">{venta.marketplace}</p>}
+                  {venta.tipoOperacion && <p className="text-xs text-slate-400">{venta.tipoOperacion}</p>}
                 </TableCell>
                 <TableCell>
-                  {venta.ganancia != null ? (
-                    <p className={cn("font-semibold text-sm", venta.ganancia >= 0 ? "text-emerald-600" : "text-red-600")}>
-                      {venta.moneda} {venta.ganancia.toFixed(0)}
+                  {venta.honorariosTotal != null ? (
+                    <p className="font-semibold text-sm text-emerald-600">
+                      {venta.moneda} {venta.honorariosTotal.toLocaleString('es-AR', { minimumFractionDigits: 0 })}
                     </p>
                   ) : <span className="text-slate-400">-</span>}
                 </TableCell>
@@ -256,8 +256,8 @@ export default function Postventa() {
               Volver
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold text-slate-900">Postventa</h1>
-          <p className="text-slate-500">Seguimiento de clientes después de la venta</p>
+          <h1 className="text-2xl font-bold text-slate-900">Post-operación</h1>
+          <p className="text-slate-500">Seguimiento de clientes después del cierre de la operación</p>
         </div>
 
         {/* Stats */}
