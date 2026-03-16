@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Copy, ExternalLink, Check, Sparkles } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
+import { useWorkspace } from "@/components/context/WorkspaceContext";
 import { addBusinessDays } from "date-fns";
 
 export default function WhatsAppSender({ open, onOpenChange, consulta, onMessageSent }) {
