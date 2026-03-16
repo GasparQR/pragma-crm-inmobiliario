@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, AlertCircle, CheckCircle2, MessageCircle, ArrowLeft, Star } from "lucide-react";
+import { Calendar, AlertCircle, CheckCircle2, MessageCircle, ArrowLeft, Star, XCircle } from "lucide-react";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import moment from "moment";
 import WhatsAppSender from "@/components/crm/WhatsAppSender";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 
 const etapaColors = {
@@ -42,7 +43,7 @@ export default function Hoy() {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Consulta.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['consultas-hoy'] });
+      queryClient.invalidateQueries({ queryKey: ['consultas-hoy', workspace?.id] });
       toast.success("Actualizado");
     }
   });
@@ -50,7 +51,7 @@ export default function Hoy() {
   const updateVentaMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Venta.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ventas-postventa-hoy'] });
+      queryClient.invalidateQueries({ queryKey: ['ventas-postventa-hoy', workspace?.id] });
       toast.success("Postventa actualizada");
     }
   });
@@ -60,20 +61,20 @@ export default function Hoy() {
   const hoy = consultas.filter(c => 
     c.proximoSeguimiento && 
     moment(c.proximoSeguimiento).isSame(today, 'day') &&
-    !["Operación cerrada", "No concretado"].includes(c.etapa)
+    !c.concretado && c.etapa !== "No concretado" && c.etapa !== "Perdido"
   );
 
   const vencidos = consultas.filter(c => 
     c.proximoSeguimiento && 
     moment(c.proximoSeguimiento).isBefore(today, 'day') &&
-    !["Operación cerrada", "No concretado"].includes(c.etapa)
+    !c.concretado && c.etapa !== "No concretado" && c.etapa !== "Perdido"
   );
 
   const proximos3d = consultas.filter(c => 
     c.proximoSeguimiento && 
     moment(c.proximoSeguimiento).isAfter(today, 'day') &&
     moment(c.proximoSeguimiento).isBefore(today.clone().add(3, 'days'), 'day') &&
-    !["Operación cerrada", "No concretado"].includes(c.etapa)
+    !c.concretado && c.etapa !== "No concretado" && c.etapa !== "Perdido"
   );
 
   // Postventa
@@ -101,12 +102,21 @@ export default function Hoy() {
     setShowWhatsApp(true);
   };
 
-  const handleMarcarCompletado = async (consulta) => {
-    const nuevaFecha = moment().add(3, 'days').format("YYYY-MM-DD");
+  const handleSeguimiento = async (consulta, dias) => {
+    const fecha = moment().add(dias, 'days').format("YYYY-MM-DD");
     await updateMutation.mutateAsync({
       id: consulta.id,
-      data: { proximoSeguimiento: nuevaFecha }
+      data: { proximoSeguimiento: fecha }
     });
+    toast.success(`Seguimiento agendado para ${moment(fecha).format("DD/MM")}`);
+  };
+
+  const handleMarcarPerdido = async (consulta, motivo) => {
+    await updateMutation.mutateAsync({
+      id: consulta.id,
+      data: { etapa: "No concretado", motivoPerdida: motivo }
+    });
+    toast.success("Marcado como no concretado");
   };
 
   const handleMarcarPostventaCompletado = async (venta) => {
@@ -155,13 +165,32 @@ export default function Hoy() {
             >
               <MessageCircle className="w-4 h-4" />
             </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleMarcarCompletado(consulta)}
-            >
-              <CheckCircle2 className="w-4 h-4" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" variant="outline">
+                  <CheckCircle2 className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleSeguimiento(consulta, 1)}>Mañana</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSeguimiento(consulta, 3)}>En 3 días</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSeguimiento(consulta, 7)}>En 1 semana</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" variant="outline" className="border-red-200 text-red-500 hover:bg-red-50">
+                  <XCircle className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem className="text-red-600" onClick={() => handleMarcarPerdido(consulta, "Fuera de presupuesto")}>Fuera de presupuesto</DropdownMenuItem>
+                <DropdownMenuItem className="text-red-600" onClick={() => handleMarcarPerdido(consulta, "Se fue con otra inmobiliaria")}>Se fue con otra inmobiliaria</DropdownMenuItem>
+                <DropdownMenuItem className="text-red-600" onClick={() => handleMarcarPerdido(consulta, "No encontró lo que buscaba")}>No encontró lo que buscaba</DropdownMenuItem>
+                <DropdownMenuItem className="text-red-600" onClick={() => handleMarcarPerdido(consulta, "Postergó decisión")}>Postergó decisión</DropdownMenuItem>
+                <DropdownMenuItem className="text-red-600" onClick={() => handleMarcarPerdido(consulta, "NoResponde")}>No responde</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </CardContent>
