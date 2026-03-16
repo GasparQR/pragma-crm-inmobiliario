@@ -54,7 +54,8 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
   };
 
   const loadPlantillas = async () => {
-    const data = await base44.entities.PlantillaWhatsApp.filter({ activa: true });
+    if (!workspace?.id) return;
+    const data = await base44.entities.PlantillaWhatsApp.filter({ activa: true, workspace_id: workspace.id });
     const sorted = [...data].sort((a, b) => getRelevancia(a) - getRelevancia(b));
     setPlantillas(sorted);
     
