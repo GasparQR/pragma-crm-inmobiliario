@@ -60,20 +60,20 @@ export default function Hoy() {
   const hoy = consultas.filter(c => 
     c.proximoSeguimiento && 
     moment(c.proximoSeguimiento).isSame(today, 'day') &&
-    !["Concretado", "Perdido"].includes(c.etapa)
+    !["Operación cerrada", "No concretado"].includes(c.etapa)
   );
 
   const vencidos = consultas.filter(c => 
     c.proximoSeguimiento && 
     moment(c.proximoSeguimiento).isBefore(today, 'day') &&
-    !["Concretado", "Perdido"].includes(c.etapa)
+    !["Operación cerrada", "No concretado"].includes(c.etapa)
   );
 
   const proximos3d = consultas.filter(c => 
     c.proximoSeguimiento && 
     moment(c.proximoSeguimiento).isAfter(today, 'day') &&
     moment(c.proximoSeguimiento).isBefore(today.clone().add(3, 'days'), 'day') &&
-    !["Concretado", "Perdido"].includes(c.etapa)
+    !["Operación cerrada", "No concretado"].includes(c.etapa)
   );
 
   // Postventa
@@ -128,9 +128,9 @@ export default function Hoy() {
                 {consulta.etapa}
               </Badge>
             </div>
-            <p className="text-sm text-slate-600 mb-1">{consulta.productoConsultado}</p>
-            {consulta.variante && (
-              <p className="text-xs text-slate-400">{consulta.variante}</p>
+            <p className="text-sm text-slate-600 mb-1">{consulta.propiedadConsultada || consulta.productoConsultado}</p>
+            {(consulta.caracteristicas || consulta.variante) && (
+              <p className="text-xs text-slate-400">{consulta.caracteristicas || consulta.variante}</p>
             )}
             {consulta.precioCotizado && (
               <p className="text-sm font-medium text-slate-900 mt-2">
@@ -176,9 +176,9 @@ export default function Hoy() {
             <div className="flex items-center gap-2 mb-2">
               <Star className="w-4 h-4 text-emerald-500" />
               <h3 className="font-semibold text-slate-900">{venta.nombreSnapshot} {venta.apellidoSnapshot}</h3>
-              <Badge className="bg-emerald-100 text-emerald-700">Postventa</Badge>
+              <Badge className="bg-emerald-100 text-emerald-700">Post-operación</Badge>
             </div>
-            <p className="text-sm text-slate-600 mb-1">{venta.productoSnapshot || venta.modelo}</p>
+            <p className="text-sm text-slate-600 mb-1">{venta.propiedadDescripcion || venta.productoSnapshot || venta.modelo}</p>
             {venta.postventaNotas && (
               <p className="text-xs text-slate-400">{venta.postventaNotas}</p>
             )}

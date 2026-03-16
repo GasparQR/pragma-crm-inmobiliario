@@ -53,12 +53,12 @@ export default function DetalleConsultaDialog({ consulta, open, onOpenChange, on
                     <p className="text-sm mt-1">{consulta.contactoWhatsapp}</p>
                   </div>
                   <div>
-                    <Label className="text-xs font-semibold text-slate-500">Propiedad</Label>
-                    <p className="text-sm mt-1">{consulta.productoConsultado}</p>
+                    <Label className="text-xs font-semibold text-slate-500">Búsqueda</Label>
+                    <p className="text-sm mt-1">{consulta.propiedadConsultada || consulta.productoConsultado}</p>
                   </div>
                   <div>
-                    <Label className="text-xs font-semibold text-slate-500">Tipo</Label>
-                    <p className="text-sm mt-1">{consulta.categoriaProducto}</p>
+                    <Label className="text-xs font-semibold text-slate-500">Tipo de propiedad</Label>
+                    <p className="text-sm mt-1">{consulta.tipoPropiedad || consulta.categoriaProducto}</p>
                   </div>
                   <div>
                     <Label className="text-xs font-semibold text-slate-500">Etapa</Label>
