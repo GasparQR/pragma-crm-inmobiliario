@@ -120,6 +120,7 @@ export default function OperacionForm({ open, onOpenChange, consulta, onOperacio
       return;
     }
 
+    setSubmitting(true);
     try {
       const dataToSave = {
         ...formData,
@@ -158,6 +159,8 @@ export default function OperacionForm({ open, onOpenChange, consulta, onOperacio
       onOpenChange(false);
     } catch (error) {
       toast.error("Error al guardar la operación");
+    } finally {
+      setSubmitting(false);
     }
   };
 

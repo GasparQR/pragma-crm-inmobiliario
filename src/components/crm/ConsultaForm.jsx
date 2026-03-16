@@ -139,7 +139,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
       toast.error("Contacto y búsqueda son requeridos");
       return;
     }
-    setLoading(true);
+    setSubmitting(true);
     const contacto = contactos.find(c => c.id === formData.contactoId);
     const dataToSave = {
       ...formData,

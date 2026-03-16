@@ -161,6 +161,7 @@ export default function VentaForm({ open, onOpenChange, consulta, onVentaCreada,
     const comision = parseFloat(formData.comision) || 0;
     const canje = parseFloat(formData.canje) || 0;
 
+    setSubmitting(true);
     try {
       let ventaData;
       
@@ -244,6 +245,8 @@ export default function VentaForm({ open, onOpenChange, consulta, onVentaCreada,
     } catch (error) {
       toast.error("Error al guardar la venta");
       console.error(error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
