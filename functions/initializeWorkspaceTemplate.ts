@@ -1,11 +1,14 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 const PIPELINE = [
-  { nombre: "Nuevo",      orden: 1, color: "bg-blue-500",    is_won: false, is_lost: false },
-  { nombre: "Visita",     orden: 2, color: "bg-violet-500",  is_won: false, is_lost: false },
-  { nombre: "Post Visita",orden: 3, color: "bg-amber-500",   is_won: false, is_lost: false },
-  { nombre: "Concretado", orden: 4, color: "bg-emerald-500", is_won: true,  is_lost: false },
-  { nombre: "Perdido",    orden: 5, color: "bg-red-500",     is_won: false, is_lost: true  },
+  { nombre: "Nuevo lead",        orden: 1, color: "bg-blue-500",    is_won: false, is_lost: false },
+  { nombre: "Contactado",        orden: 2, color: "bg-cyan-500",    is_won: false, is_lost: false },
+  { nombre: "Visita agendada",   orden: 3, color: "bg-violet-500",  is_won: false, is_lost: false },
+  { nombre: "Visita realizada",  orden: 4, color: "bg-amber-500",   is_won: false, is_lost: false },
+  { nombre: "En negociación",    orden: 5, color: "bg-orange-500",  is_won: false, is_lost: false },
+  { nombre: "Reserva firmada",   orden: 6, color: "bg-purple-500",  is_won: false, is_lost: false },
+  { nombre: "Operación cerrada", orden: 7, color: "bg-emerald-500", is_won: true,  is_lost: false },
+  { nombre: "No concretado",     orden: 8, color: "bg-red-500",     is_won: false, is_lost: true  },
 ];
 
 const TAGS = [
@@ -15,7 +18,13 @@ const TAGS = [
   { name: "Instagram",          type: "source" },
   { name: "Estado WhatsApp",    type: "source" },
   { name: "Referido",           type: "source" },
-  { name: "Cartel",             type: "source" },
+  { name: "Argenprop",                type: "source" },
+  { name: "MercadoLibre",             type: "source" },
+  { name: "La Voz del Interior",      type: "source" },
+  { name: "Cartel en propiedad",      type: "source" },
+  { name: "Vitrina",                  type: "source" },
+  { name: "Base de datos propia",     type: "source" },
+  { name: "Otro",                     type: "source" },
   { name: "Venta",             type: "operation" },
   { name: "Alquiler",          type: "operation" },
   { name: "Alquiler temporal", type: "operation" },
