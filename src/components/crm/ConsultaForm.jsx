@@ -134,6 +134,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
   };
 
   const handleSubmit = async () => {
+    if (submitting) return;
     if (!formData.contactoId || !formData.propiedadConsultada) {
       toast.error("Contacto y búsqueda son requeridos");
       return;

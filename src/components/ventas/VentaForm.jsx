@@ -132,6 +132,8 @@ export default function VentaForm({ open, onOpenChange, consulta, onVentaCreada,
   }, [formData.costo, formData.venta, formData.comision, formData.canje]);
 
   const handleSubmit = async (finalizar = false) => {
+    if (submitting) return;
+
     // Validar nombre
     if (!formData.nombreSnapshot) {
       toast.error("El nombre del cliente es obligatorio");

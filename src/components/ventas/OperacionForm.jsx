@@ -112,6 +112,7 @@ export default function OperacionForm({ open, onOpenChange, consulta, onOperacio
   };
 
   const handleSubmit = async (estadoFinal) => {
+    if (submitting) return;
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
