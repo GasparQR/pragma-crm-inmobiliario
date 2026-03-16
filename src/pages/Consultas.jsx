@@ -42,9 +42,9 @@ const prioridadColors = {
 };
 
 const CANALES = [
-  "Zona Prop", "Argenprop", "MercadoLibre", "La Voz del Interior",
+  "Zona Prop", "MercadoLibre", "La Voz del Interior",
   "Facebook", "Instagram", "Estado WhatsApp", "Referido",
-  "Cartel en propiedad", "Vitrina", "Base de datos propia", "Otro"
+  "Cartel en propiedad", "Otro"
 ];
 
 const MOTIVOS_PERDIDA = [
@@ -73,9 +73,28 @@ export default function Consultas() {
 
   const { data: consultas = [], refetch, isLoading } = useQuery({
     queryKey: ['consultas-list', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Consulta.filter({ workspace_id: workspace.id }, "-created_date", 500) : [],
+    queryFn: () => workspace ? base44.entities.Consulta.filter({ workspace_id: workspace.id }, "-created_date", 2000) : [],
     enabled: !!workspace
   });
+
+  const { data: etapasPipeline = [] } = useQuery({
+    queryKey: ['pipeline-stages', workspace?.id],
+    queryFn: async () => {
+      if (!workspace) return [];
+      const stages = await base44.entities.PipelineStage.filter({ workspace_id: workspace.id }, "orden", 100);
+      return stages.filter(s => s.activa !== false);
+    },
+    enabled: !!workspace
+  });
+
+  const { data: tags = [] } = useQuery({
+    queryKey: ['tags', workspace?.id],
+    queryFn: () => workspace ? base44.entities.Tag.filter({ workspace_id: workspace.id }) : [],
+    enabled: !!workspace
+  });
+
+  const canalesDinamicos = tags.filter(t => t.type === 'source').map(t => t.name);
+  const canalesList = canalesDinamicos.length > 0 ? canalesDinamicos : CANALES;
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Consulta.update(id, data),
@@ -173,7 +192,10 @@ export default function Consultas() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todas">Todas las etapas</SelectItem>
-                {Object.keys(etapaColors).map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}
+                {etapasPipeline.length > 0
+                  ? etapasPipeline.map(e => <SelectItem key={e.nombre} value={e.nombre}>{e.nombre}</SelectItem>)
+                  : Object.keys(etapaColors).map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)
+                }
               </SelectContent>
             </Select>
             <Select value={filtroCanal} onValueChange={setFiltroCanal}>
@@ -182,7 +204,7 @@ export default function Consultas() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos los canales</SelectItem>
-                {CANALES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                {canalesList.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={filtroPrioridad} onValueChange={setFiltroPrioridad}>
@@ -216,7 +238,14 @@ export default function Consultas() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {consultasFiltradas.map(consulta => {
+              {isLoading && [1,2,3,4,5].map(i => (
+                <TableRow key={i}>
+                  {[1,2,3,4,5,6].map(j => (
+                    <TableCell key={j}><div className="h-4 bg-slate-100 rounded animate-pulse" /></TableCell>
+                  ))}
+                </TableRow>
+              ))}
+              {!isLoading && consultasFiltradas.map(consulta => {
                 const vencido = consulta.proximoSeguimiento && moment(consulta.proximoSeguimiento).isBefore(moment(), 'day');
                 const busqueda = consulta.propiedadConsultada || consulta.productoConsultado;
                 const caracteristicas = consulta.caracteristicas || consulta.variante;
@@ -302,7 +331,7 @@ export default function Consultas() {
                   </TableRow>
                 );
               })}
-              {consultasFiltradas.length === 0 && (
+              {!isLoading && consultasFiltradas.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-12 text-slate-400">
                     No hay consultas que coincidan con los filtros
