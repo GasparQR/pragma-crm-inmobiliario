@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useWorkspace } from "@/components/context/WorkspaceContext";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -15,23 +16,23 @@ import { toast } from "sonner";
 export default function Variables() {
   const [showForm, setShowForm] = useState(false);
   const [selectedVariable, setSelectedVariable] = useState(null);
-  const [formData, setFormData] = useState({
-    clave: "",
-    valor: "",
-    descripcion: ""
-  });
+  const [formData, setFormData] = useState({ clave: "", valor: "", descripcion: "" });
 
   const queryClient = useQueryClient();
+  const { workspace } = useWorkspace();
 
   const { data: variables = [] } = useQuery({
-    queryKey: ['variables'],
-    queryFn: () => base44.entities.VariablePlantilla.list("-created_date")
+    queryKey: ['variables', workspace?.id],
+    queryFn: () => workspace?.id
+      ? base44.entities.VariablePlantilla.filter({ workspace_id: workspace.id }, "-created_date")
+      : [],
+    enabled: !!workspace?.id
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.VariablePlantilla.create(data),
+    mutationFn: (data) => base44.entities.VariablePlantilla.create({ ...data, workspace_id: workspace?.id }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['variables'] });
+      queryClient.invalidateQueries({ queryKey: ['variables', workspace?.id] });
       toast.success("Variable creada");
       resetForm();
     }
@@ -40,7 +41,7 @@ export default function Variables() {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.VariablePlantilla.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['variables'] });
+      queryClient.invalidateQueries({ queryKey: ['variables', workspace?.id] });
       toast.success("Variable actualizada");
       resetForm();
     }
@@ -49,7 +50,7 @@ export default function Variables() {
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.VariablePlantilla.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['variables'] });
+      queryClient.invalidateQueries({ queryKey: ['variables', workspace?.id] });
       toast.success("Variable eliminada");
     }
   });
@@ -62,11 +63,7 @@ export default function Variables() {
 
   const handleEdit = (variable) => {
     setSelectedVariable(variable);
-    setFormData({
-      clave: variable.clave,
-      valor: variable.valor,
-      descripcion: variable.descripcion || ""
-    });
+    setFormData({ clave: variable.clave, valor: variable.valor, descripcion: variable.descripcion || "" });
     setShowForm(true);
   };
 
@@ -75,7 +72,6 @@ export default function Variables() {
       toast.error("Clave y valor son requeridos");
       return;
     }
-
     if (selectedVariable) {
       updateMutation.mutate({ id: selectedVariable.id, data: formData });
     } else {
@@ -86,13 +82,11 @@ export default function Variables() {
   return (
     <div className="min-h-screen bg-slate-50/50 p-6">
       <div className="max-w-5xl mx-auto space-y-6">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <Link to={createPageUrl("Home")}>
               <Button variant="ghost" className="gap-2 mb-2 -ml-2">
-                <ArrowLeft className="w-4 h-4" />
-                Volver
+                <ArrowLeft className="w-4 h-4" />Volver
               </Button>
             </Link>
             <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
@@ -102,16 +96,12 @@ export default function Variables() {
             <p className="text-slate-500">Define los valores predeterminados para tus plantillas de WhatsApp</p>
           </div>
           <Button onClick={() => { resetForm(); setShowForm(true); }} className="gap-2">
-            <Plus className="w-4 h-4" />
-            Nueva variable
+            <Plus className="w-4 h-4" />Nueva variable
           </Button>
         </div>
 
-        {/* Tabla */}
         <Card>
-          <CardHeader>
-            <CardTitle>Variables configuradas</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle>Variables configuradas</CardTitle></CardHeader>
           <CardContent>
             {variables.length === 0 ? (
               <div className="text-center py-12">
@@ -132,31 +122,16 @@ export default function Variables() {
                 <TableBody>
                   {variables.map((variable) => (
                     <TableRow key={variable.id}>
-                      <TableCell className="font-mono font-semibold">
-                        {"{" + variable.clave + "}"}
-                      </TableCell>
+                      <TableCell className="font-mono font-semibold">{"{" + variable.clave + "}"}</TableCell>
                       <TableCell>{variable.valor}</TableCell>
                       <TableCell className="text-slate-500">{variable.descripcion}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0"
-                            onClick={() => handleEdit(variable)}
-                          >
+                          <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => handleEdit(variable)}>
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
-                            onClick={() => {
-                              if (window.confirm("¿Eliminar esta variable?")) {
-                                deleteMutation.mutate(variable.id);
-                              }
-                            }}
-                          >
+                          <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
+                            onClick={() => { if (window.confirm("¿Eliminar esta variable?")) deleteMutation.mutate(variable.id); }}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -170,53 +145,31 @@ export default function Variables() {
         </Card>
       </div>
 
-      {/* Form Dialog */}
       <Dialog open={showForm} onOpenChange={(open) => { if (!open) resetForm(); else setShowForm(true); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {selectedVariable ? "Editar variable" : "Nueva variable"}
-            </DialogTitle>
+            <DialogTitle>{selectedVariable ? "Editar variable" : "Nueva variable"}</DialogTitle>
           </DialogHeader>
-
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Clave de la variable *</Label>
-              <Input
-                value={formData.clave}
+              <Label>Clave *</Label>
+              <Input value={formData.clave}
                 onChange={(e) => setFormData({ ...formData, clave: e.target.value.toUpperCase() })}
-                placeholder="GARANTIA"
-                className="font-mono"
-              />
-              <p className="text-xs text-slate-400">
-                Se usará como {"{" + (formData.clave || "CLAVE") + "}"}
-              </p>
+                placeholder="GARANTIA" className="font-mono" />
+              <p className="text-xs text-slate-400">Se usará como {"{" + (formData.clave || "CLAVE") + "}"}</p>
             </div>
-
             <div className="space-y-2">
               <Label>Valor *</Label>
-              <Input
-                value={formData.valor}
-                onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
-                placeholder="6 meses"
-              />
+              <Input value={formData.valor} onChange={(e) => setFormData({ ...formData, valor: e.target.value })} placeholder="6 meses" />
             </div>
-
             <div className="space-y-2">
               <Label>Descripción</Label>
-              <Input
-                value={formData.descripcion}
-                onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-                placeholder="Garantía incluida"
-              />
+              <Input value={formData.descripcion} onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })} placeholder="Garantía incluida" />
             </div>
           </div>
-
           <DialogFooter>
             <Button variant="outline" onClick={resetForm}>Cancelar</Button>
-            <Button onClick={handleSubmit}>
-              {selectedVariable ? "Guardar" : "Crear"}
-            </Button>
+            <Button onClick={handleSubmit}>{selectedVariable ? "Guardar" : "Crear"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
