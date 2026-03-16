@@ -11,15 +11,15 @@ import WhatsAppSender from "@/components/crm/WhatsAppSender";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
-  Plus, TrendingUp, Clock, Handshake, CheckCircle2, 
-  Kanban, List, Users, MessageSquare, BarChart3,
+  Plus, TrendingUp, Clock, CheckCircle2, 
+  Kanban, List, Users, BarChart3,
   Calendar, AlertCircle, ArrowRight, Zap, XCircle, DollarSign, MessageCircle
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import moment from "moment";
 
 const COLORS = ["#3b82f6", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
-const CANALES = ["Zona Prop", "La voz del interior", "Facebook", "Instagram", "Estado WhatsApp", "Referido", "Cartel"];
+const CANALES = ["Zona Prop", "Argenprop", "MercadoLibre", "La Voz del Interior", "Facebook", "Instagram", "Estado WhatsApp", "Referido", "Cartel en propiedad", "Vitrina", "Base de datos propia", "Otro"];
 
 export default function Home() {
   const [showForm, setShowForm] = useState(false);
@@ -126,7 +126,7 @@ export default function Home() {
             className="gap-2 bg-slate-900 hover:bg-slate-800 shadow-lg"
           >
             <Plus className="w-5 h-5" />
-            Nueva Consulta
+            Nueva consulta / lead
           </Button>
         </div>
 
