@@ -20,10 +20,10 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (open) {
+    if (open && workspace?.id) {
       loadPlantillas();
     }
-  }, [open]);
+  }, [open, workspace?.id]);
 
   useEffect(() => {
     if (selectedPlantilla && consulta) {
