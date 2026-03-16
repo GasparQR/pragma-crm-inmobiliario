@@ -9,14 +9,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { User, Building2, Calendar, Plus } from "lucide-react";
+import { User, Search, Calendar, Plus } from "lucide-react";
 import moment from "moment";
 import { getNextBusinessDay } from "@/components/utils/dateUtils";
 
-const CANALES_DEFAULT = ["Zona Prop", "La voz del interior", "Facebook", "Instagram", "Estado WhatsApp", "Referido", "Cartel"];
-const CATEGORIAS = ["Departamento", "Casa", "Duplex", "Lote", "Oficina", "Local", "Campo"];
+const CANALES_DEFAULT = [
+  "Zona Prop", "Argenprop", "MercadoLibre", "La Voz del Interior",
+  "Facebook", "Instagram", "Estado WhatsApp", "Referido",
+  "Cartel en propiedad", "Vitrina", "Base de datos propia", "Otro"
+];
+const TIPOS_PROPIEDAD = ["Departamento", "Casa", "Duplex", "PH", "Lote", "Local Comercial", "Oficina", "Campo", "Cochera"];
+const OPERACIONES_BUSCADAS = ["Compra", "Alquiler", "Alquiler Temporal"];
 const PRIORIDADES = ["Alta", "Media", "Baja"];
-const MOTIVOS_PERDIDA = ["Caro", "ComproOtro", "NoResponde", "Financiacion", "Otro"];
+const MOTIVOS_PERDIDA = [
+  "Fuera de presupuesto", "Se fue con otra inmobiliaria", "No encontró lo que buscaba",
+  "Postergó decisión", "NoResponde", "Financiacion", "Otro"
+];
 
 export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
   const [contactos, setContactos] = useState([]);
@@ -45,13 +53,15 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
 
   const [formData, setFormData] = useState({
     contactoId: "",
-    productoConsultado: "",
-    categoriaProducto: "",
-    variante: "",
+    propiedadConsultada: "",
+    tipoPropiedad: "",
+    caracteristicas: "",
+    barrio: "",
+    operacionBuscada: "Compra",
     presupuestoMax: "",
     moneda: "USD",
     precioCotizado: "",
-    etapa: "Nuevo",
+    etapa: "Nuevo lead",
     prioridad: "Media",
     canalOrigen: "",
     proximoSeguimiento: getNextBusinessDay(new Date(), 3),
@@ -59,11 +69,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
   });
 
   const [newContact, setNewContact] = useState({
-    nombre: "",
-    apellido: "",
-    whatsapp: "",
-    ciudad: "",
-    canalOrigen: ""
+    nombre: "", apellido: "", whatsapp: "", ciudad: "", canalOrigen: ""
   });
 
   useEffect(() => {
@@ -74,6 +80,9 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
     if (consulta) {
       setFormData({
         ...consulta,
+        propiedadConsultada: consulta.propiedadConsultada || consulta.productoConsultado || "",
+        tipoPropiedad: consulta.tipoPropiedad || consulta.categoriaProducto || "",
+        caracteristicas: consulta.caracteristicas || consulta.variante || "",
         presupuestoMax: consulta.presupuestoMax || "",
         precioCotizado: consulta.precioCotizado || "",
         proximoSeguimiento: consulta.proximoSeguimiento || ""
@@ -81,13 +90,15 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
     } else {
       setFormData({
         contactoId: "",
-        productoConsultado: "",
-        categoriaProducto: "",
-        variante: "",
+        propiedadConsultada: "",
+        tipoPropiedad: "",
+        caracteristicas: "",
+        barrio: "",
+        operacionBuscada: "Compra",
         presupuestoMax: "",
         moneda: "USD",
         precioCotizado: "",
-        etapa: "Nuevo",
+        etapa: etapas[0]?.nombre || "Nuevo lead",
         prioridad: "Media",
         canalOrigen: "",
         proximoSeguimiento: getNextBusinessDay(new Date(), 3),
@@ -122,8 +133,8 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
   };
 
   const handleSubmit = async () => {
-    if (!formData.contactoId || !formData.productoConsultado) {
-      toast.error("Contacto y propiedad son requeridos");
+    if (!formData.contactoId || !formData.propiedadConsultada) {
+      toast.error("Contacto y búsqueda son requeridos");
       return;
     }
     setLoading(true);
@@ -137,15 +148,15 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
       fechaConsulta: consulta?.fechaConsulta || moment().format("YYYY-MM-DD"),
       workspace_id: workspace?.id
     };
-    if (formData.concretado && formData.etapa !== "Concretado") {
-      dataToSave.etapa = "Concretado";
+    if (formData.concretado && formData.etapa !== "Operación cerrada") {
+      dataToSave.etapa = "Operación cerrada";
     }
     if (consulta) {
       await base44.entities.Consulta.update(consulta.id, dataToSave);
       toast.success("Consulta actualizada");
     } else {
       await base44.entities.Consulta.create(dataToSave);
-      toast.success("Consulta creada");
+      toast.success("Consulta / lead creada");
     }
     setLoading(false);
     onSave?.();
@@ -159,7 +170,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {consulta ? "Editar Consulta" : "Nueva Consulta"}
+            {consulta ? "Editar Consulta / Lead" : "Nueva Consulta / Lead"}
           </DialogTitle>
         </DialogHeader>
 
@@ -168,8 +179,8 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
             <TabsTrigger value="contacto" className="gap-2">
               <User className="w-4 h-4" /> Contacto
             </TabsTrigger>
-            <TabsTrigger value="propiedad" className="gap-2">
-              <Building2 className="w-4 h-4" /> Propiedad
+            <TabsTrigger value="busqueda" className="gap-2">
+              <Search className="w-4 h-4" /> Búsqueda
             </TabsTrigger>
             <TabsTrigger value="seguimiento" className="gap-2">
               <Calendar className="w-4 h-4" /> Seguimiento
@@ -181,18 +192,13 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
               <>
                 <div className="space-y-2">
                   <Label>Contacto existente</Label>
-                  <Select
-                    value={formData.contactoId}
-                    onValueChange={(val) => setFormData({ ...formData, contactoId: val })}
-                  >
+                  <Select value={formData.contactoId} onValueChange={(val) => setFormData({ ...formData, contactoId: val })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccionar contacto" />
                     </SelectTrigger>
                     <SelectContent>
                       {contactos.map(c => (
-                        <SelectItem key={c.id} value={c.id}>
-                          {c.nombre} {c.apellido} - {c.whatsapp}
-                        </SelectItem>
+                        <SelectItem key={c.id} value={c.id}>{c.nombre} {c.apellido} - {c.whatsapp}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -205,8 +211,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
                   </div>
                 )}
                 <Button type="button" variant="outline" onClick={() => setShowNewContact(true)} className="w-full gap-2">
-                  <Plus className="w-4 h-4" />
-                  Crear nuevo contacto
+                  <Plus className="w-4 h-4" />Crear nuevo contacto
                 </Button>
               </>
             ) : (
@@ -246,35 +251,52 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
             )}
           </TabsContent>
 
-          <TabsContent value="propiedad" className="space-y-4 mt-4">
+          <TabsContent value="busqueda" className="space-y-4 mt-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2 col-span-2">
-                <Label>Propiedad consultada *</Label>
+                <Label>¿Qué propiedad busca? *</Label>
                 <Input
-                  value={formData.productoConsultado}
-                  onChange={(e) => setFormData({ ...formData, productoConsultado: e.target.value })}
-                  placeholder="Casa 3 amb. en Nueva Córdoba"
+                  value={formData.propiedadConsultada}
+                  onChange={(e) => setFormData({ ...formData, propiedadConsultada: e.target.value })}
+                  placeholder="Dpto 2 amb. en Nueva Córdoba, con cochera"
                 />
               </div>
               <div className="space-y-2">
                 <Label>Tipo de propiedad</Label>
-                <Select value={formData.categoriaProducto} onValueChange={(val) => setFormData({ ...formData, categoriaProducto: val })}>
+                <Select value={formData.tipoPropiedad} onValueChange={(val) => setFormData({ ...formData, tipoPropiedad: val })}>
                   <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                   <SelectContent>
-                    {CATEGORIAS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    {TIPOS_PROPIEDAD.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Características</Label>
+                <Label>Operación buscada</Label>
+                <Select value={formData.operacionBuscada} onValueChange={(val) => setFormData({ ...formData, operacionBuscada: val })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {OPERACIONES_BUSCADAS.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Barrio/Zona preferida</Label>
                 <Input
-                  value={formData.variante}
-                  onChange={(e) => setFormData({ ...formData, variante: e.target.value })}
+                  value={formData.barrio}
+                  onChange={(e) => setFormData({ ...formData, barrio: e.target.value })}
+                  placeholder="Nueva Córdoba, General Paz..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Características buscadas</Label>
+                <Input
+                  value={formData.caracteristicas}
+                  onChange={(e) => setFormData({ ...formData, caracteristicas: e.target.value })}
                   placeholder="2 dorm., 80m², con cochera"
                 />
               </div>
               <div className="space-y-2">
-                <Label>Valor cotizado</Label>
+                <Label>Precio de propiedad mostrada</Label>
                 <div className="flex gap-2">
                   <Select value={formData.moneda} onValueChange={(val) => setFormData({ ...formData, moneda: val })}>
                     <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
@@ -287,7 +309,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Presupuesto</Label>
+                <Label>Presupuesto máximo</Label>
                 <Input type="number" value={formData.presupuestoMax} onChange={(e) => setFormData({ ...formData, presupuestoMax: e.target.value })} placeholder="150000" />
               </div>
             </div>
@@ -326,7 +348,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
                 <Label>Próximo seguimiento</Label>
                 <Input type="date" value={formData.proximoSeguimiento} onChange={(e) => setFormData({ ...formData, proximoSeguimiento: e.target.value })} />
               </div>
-              {formData.etapa === "Perdido" && (
+              {formData.etapa === "No concretado" && (
                 <div className="space-y-2 col-span-2">
                   <Label>Motivo de pérdida</Label>
                   <Select value={formData.motivoPerdida} onValueChange={(val) => setFormData({ ...formData, motivoPerdida: val })}>
@@ -344,7 +366,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
           <Button onClick={handleSubmit} disabled={loading}>
-            {consulta ? "Guardar cambios" : "Crear consulta"}
+            {consulta ? "Guardar cambios" : "Crear consulta / lead"}
           </Button>
         </DialogFooter>
       </DialogContent>
