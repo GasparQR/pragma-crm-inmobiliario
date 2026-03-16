@@ -13,7 +13,7 @@ import { ArrowLeft, Eye, Search, Filter, DollarSign, TrendingUp, Package, Plus, 
 import { useWorkspace } from "@/components/context/WorkspaceContext";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import VentaForm from "@/components/ventas/VentaForm";
+import VentaForm from "@/components/ventas/OperacionForm";
 
 const MARKETPLACES = ["WhatsApp", "Instagram", "MercadoLibre", "Local", "Otro"];
 
