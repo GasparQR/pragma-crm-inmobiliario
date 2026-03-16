@@ -508,11 +508,11 @@ export default function VentaForm({ open, onOpenChange, consulta, onVentaCreada,
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button variant="outline" onClick={() => handleSubmit(false)}>
-            Guardar Borrador
+          <Button variant="outline" onClick={() => handleSubmit(false)} disabled={submitting}>
+            {submitting ? "Guardando..." : "Guardar Borrador"}
           </Button>
-          <Button onClick={() => handleSubmit(true)}>
-            {ventaExistente ? "Actualizar y Finalizar" : "Finalizar Venta"}
+          <Button onClick={() => handleSubmit(true)} disabled={submitting}>
+            {submitting ? "Guardando..." : ventaExistente ? "Actualizar y Finalizar" : "Finalizar Venta"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -401,8 +401,8 @@ export default function OperacionForm({ open, onOpenChange, consulta, onOperacio
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button onClick={() => handleSubmit(null)}>
-            {operacionExistente ? "Actualizar" : "Guardar operación"}
+          <Button onClick={() => handleSubmit(null)} disabled={submitting}>
+            {submitting ? "Guardando..." : operacionExistente ? "Actualizar" : "Guardar operación"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -140,28 +140,34 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
       return;
     }
     setSubmitting(true);
-    const contacto = contactos.find(c => c.id === formData.contactoId);
-    const dataToSave = {
-      ...formData,
-      contactoNombre: contacto?.nombre,
-      contactoWhatsapp: contacto?.whatsapp,
-      presupuestoMax: formData.presupuestoMax ? Number(formData.presupuestoMax) : null,
-      precioCotizado: formData.precioCotizado ? Number(formData.precioCotizado) : null,
-      fechaConsulta: consulta?.fechaConsulta || moment().format("YYYY-MM-DD"),
-      workspace_id: workspace?.id
-    };
-    if (formData.concretado && formData.etapa !== "Operación cerrada") {
-      dataToSave.etapa = "Operación cerrada";
+    try {
+      const contacto = contactos.find(c => c.id === formData.contactoId);
+      const dataToSave = {
+        ...formData,
+        contactoNombre: contacto?.nombre,
+        contactoWhatsapp: contacto?.whatsapp,
+        presupuestoMax: formData.presupuestoMax ? Number(formData.presupuestoMax) : null,
+        precioCotizado: formData.precioCotizado ? Number(formData.precioCotizado) : null,
+        fechaConsulta: consulta?.fechaConsulta || moment().format("YYYY-MM-DD"),
+        workspace_id: workspace?.id
+      };
+      if (formData.concretado && formData.etapa !== "Operación cerrada") {
+        dataToSave.etapa = "Operación cerrada";
+      }
+      if (consulta) {
+        await base44.entities.Consulta.update(consulta.id, dataToSave);
+        toast.success("Consulta actualizada");
+      } else {
+        await base44.entities.Consulta.create(dataToSave);
+        toast.success("Consulta / lead creada");
+      }
+      onSave?.();
+      onOpenChange(false);
+    } catch (error) {
+      toast.error("Error al guardar la consulta");
+    } finally {
+      setSubmitting(false);
     }
-    if (consulta) {
-      await base44.entities.Consulta.update(consulta.id, dataToSave);
-      toast.success("Consulta actualizada");
-    } else {
-      await base44.entities.Consulta.create(dataToSave);
-      toast.success("Consulta / lead creada");
-    }
-    onSave?.();
-    onOpenChange(false);
   };
 
   const selectedContact = contactos.find(c => c.id === formData.contactoId);
@@ -366,8 +372,8 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button onClick={handleSubmit} disabled={loading}>
-            {consulta ? "Guardar cambios" : "Crear consulta / lead"}
+          <Button onClick={handleSubmit} disabled={submitting}>
+            {submitting ? "Guardando..." : consulta ? "Guardar cambios" : "Crear consulta / lead"}
           </Button>
         </DialogFooter>
       </DialogContent>
