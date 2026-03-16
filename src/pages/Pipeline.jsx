@@ -7,7 +7,7 @@ import { DragDropContext } from "@hello-pangea/dnd";
 import PipelineColumn from "@/components/crm/PipelineColumn";
 import ConsultaForm from "@/components/crm/ConsultaForm";
 import WhatsAppSender from "@/components/crm/WhatsAppSender";
-import VentaForm from "@/components/ventas/VentaForm";
+import VentaForm from "@/components/ventas/OperacionForm";
 import { Button } from "@/components/ui/button";
 import { Plus, Filter, ArrowLeft, Settings } from "lucide-react";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
