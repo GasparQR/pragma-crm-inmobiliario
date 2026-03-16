@@ -10,16 +10,23 @@ import { MessageCircle, Copy, Send } from "lucide-react";
 import { toast } from "sonner";
 
 export default function SelectorListasWhatsApp({ contactoId, contactoWhatsapp, consultaId, onMessageSent }) {
+  const { workspace } = useWorkspace();
   const [selectedListaId, setSelectedListaId] = useState(null);
   const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
 
   const { data: listas = [] } = useQuery({
-    queryKey: ['listas-publicadas'],
+    queryKey: ['listas-publicadas', workspace?.id],
     queryFn: async () => {
-      const allListas = await base44.entities.ListaWhatsApp.list("-updated_date", 1000);
+      if (!workspace?.id) return [];
+      const allListas = await base44.entities.ListaWhatsApp.filter(
+        { workspace_id: workspace.id },
+        "-updated_date",
+        1000
+      );
       return allListas.filter(l => l.estado === "Publicada");
-    }
+    },
+    enabled: !!workspace?.id
   });
 
   const selectedLista = useMemo(() => {

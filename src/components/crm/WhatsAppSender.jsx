@@ -12,6 +12,7 @@ import { useWorkspace } from "@/components/context/WorkspaceContext";
 import { addBusinessDays } from "date-fns";
 
 export default function WhatsAppSender({ open, onOpenChange, consulta, onMessageSent }) {
+  const { workspace } = useWorkspace();
   const [plantillas, setPlantillas] = useState([]);
   const [selectedPlantilla, setSelectedPlantilla] = useState(null);
   const [mensaje, setMensaje] = useState("");
