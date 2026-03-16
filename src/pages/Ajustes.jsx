@@ -35,7 +35,7 @@ const OPCIONES = [
   },
   {
     title: "Listas WhatsApp",
-    description: "Administrá tus listas de precios y catálogos para enviar",
+    description: "Administrá tus listas de propiedades para enviar",
     icon: MessageSquare,
     page: "ListasWhatsApp",
     color: "bg-green-100 text-green-700"
@@ -54,7 +54,7 @@ export default function Ajustes() {
             </Button>
           </Link>
           <h1 className="text-2xl font-bold text-slate-900">Ajustes</h1>
-          <p className="text-slate-500 mt-1">Administrá la configuración de tu CRM</p>
+          <p className="text-slate-500 mt-1">Administrá la configuración de PRAGMA CRM INMO</p>
         </div>
 
         <div className="grid gap-4">

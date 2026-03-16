@@ -120,7 +120,7 @@ export default function Layout({ children, currentPageName }) {
             <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-4 text-white">
               <p className="text-xs text-slate-400 mb-1">Mini CRM</p>
               <p className="text-sm font-medium">Seguimiento de ventas</p>
-              <p className="text-xs text-slate-400 mt-2">PRAGMA SOLUCIONES DIGITALES</p>
+              <p className="text-xs text-slate-400 mt-2">PRAGMA CRM INMO</p>
             </div>
           </div>
         )}
