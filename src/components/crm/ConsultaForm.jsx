@@ -160,7 +160,6 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
       await base44.entities.Consulta.create(dataToSave);
       toast.success("Consulta / lead creada");
     }
-    setLoading(false);
     onSave?.();
     onOpenChange(false);
   };
