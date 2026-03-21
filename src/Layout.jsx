@@ -11,15 +11,16 @@ import { Toaster } from "sonner";
 import { WorkspaceProvider } from "@/components/context/WorkspaceContext";
 
 const NAV_ITEMS = [
-  { name: "Home", icon: LayoutDashboard, page: "Home" },
+  { name: "Home", icon: Home, page: "Home" },
   { name: "Pipeline", icon: Kanban, page: "Pipeline" },
-  { name: "Consultas / Leads", icon: List, page: "Consultas" },
-  { name: "Operaciones", icon: LayoutDashboard, page: "Operaciones" },
-  { name: "Propietarios", icon: Users, page: "Propietarios" },
   { name: "Hoy", icon: Calendar, page: "Hoy" },
-  { name: "Contactos", icon: Users, page: "Contactos" },
+  { name: "Consultas / Leads", icon: List, page: "Consultas" },
+  { name: "Clientes", icon: Users, page: "Contactos" },
+  { name: "Propietarios", icon: Users, page: "Propietarios" },
+  { name: "Propiedades", icon: Building2, page: "Propiedades" },
+  { name: "Operaciones", icon: LayoutDashboard, page: "Operaciones" },
   { name: "Post-operación", icon: CheckCircle2, page: "Postventa" },
-  { name: "Ajustes", icon: Users, page: "Ajustes" },
+  { name: "Ajustes", icon: Settings, page: "Ajustes" },
 ];
 
 export default function Layout({ children, currentPageName }) {
