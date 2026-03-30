@@ -147,8 +147,18 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
       proximoSeguimiento: addBusinessDays(new Date(), 3).toISOString().split('T')[0]
     };
     
-    if (consulta.etapa === "Nuevo") {
-      updates.etapa = "Seguimiento";
+    // Determinar la siguiente etapa dinámicamente
+    if (consulta.etapa && workspace?.id) {
+      const stages = await base44.entities.PipelineStage.filter({ workspace_id: workspace.id, activa: true });
+      const sorted = [...stages].sort((a, b) => a.orden - b.orden);
+      const currentIndex = sorted.findIndex(s => s.nombre === consulta.etapa);
+      if (currentIndex !== -1 && currentIndex < sorted.length - 1) {
+        const nextStage = sorted[currentIndex + 1];
+        // No avanzar si la siguiente etapa es de ganado/perdido
+        if (!nextStage.is_won && !nextStage.is_lost) {
+          updates.etapa = nextStage.nombre;
+        }
+      }
     }
 
     await base44.entities.Consulta.update(consulta.id, updates);
