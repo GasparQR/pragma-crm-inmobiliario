@@ -263,9 +263,22 @@ export default function Consultas() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <p className="font-medium">{busqueda}</p>
-                      {caracteristicas && <p className="text-sm text-slate-500">{caracteristicas}</p>}
-                      {tipo && <Badge variant="secondary" className="text-xs mt-1">{tipo}</Badge>}
+                      <p className="font-medium text-sm leading-snug">{busqueda}</p>
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {tipo && <Badge variant="secondary" className="text-xs">{tipo}</Badge>}
+                        {consulta.operacionBuscada && <Badge variant="outline" className="text-xs">{consulta.operacionBuscada}</Badge>}
+                        {consulta.barrio && <span className="text-xs text-slate-500">📍 {consulta.barrio}</span>}
+                      </div>
+                      {Array.isArray(consulta.caracteristicas) && consulta.caracteristicas.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {consulta.caracteristicas.slice(0, 3).map(c => (
+                            <span key={c} className="text-xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full">{c}</span>
+                          ))}
+                          {consulta.caracteristicas.length > 3 && (
+                            <span className="text-xs text-slate-400">+{consulta.caracteristicas.length - 3}</span>
+                          )}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell>
                       {consulta.precioCotizado ? (
