@@ -18,7 +18,7 @@ export default function DetalleConsultaDialog({ consulta, open, onOpenChange, on
 
   useEffect(() => {
     if (open && consulta?.contactoId) {
-      base44.entities.Contacto.filter({ id: consulta.contactoId })
+      base44.entities.Contacto.filter({ workspace_id: consulta.workspace_id, id: consulta.contactoId })
         .then(res => setContacto(res[0] || null))
         .catch(() => setContacto(null));
     } else {
