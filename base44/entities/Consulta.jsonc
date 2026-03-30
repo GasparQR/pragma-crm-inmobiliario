@@ -159,7 +159,6 @@
   },
   "required": [
     "contactoId",
-    "etapa",
-    "workspace_id"
+    "etapa"
   ]
 }
