@@ -21,6 +21,11 @@ const CANALES_DEFAULT = [
 const TIPOS_PROPIEDAD = ["Departamento", "Casa", "Duplex", "PH", "Lote", "Local Comercial", "Oficina", "Campo", "Cochera"];
 const OPERACIONES_BUSCADAS = ["Compra", "Alquiler", "Alquiler Temporal"];
 const PRIORIDADES = ["Alta", "Media", "Baja"];
+const CARACTERISTICAS_OPCIONES = [
+  "Pileta", "Quincho", "SUM", "Gimnasio", "Seguridad 24h", "Laundry",
+  "Balcón", "Terraza", "Patio", "Jardín", "Ascensor", "Baulera",
+  "Parrilla", "Calefacción central", "Aire acondicionado", "Gas natural", "Agua corriente"
+];
 const MOTIVOS_PERDIDA = [
   "Fuera de presupuesto", "Se fue con otra inmobiliaria", "No encontró lo que buscaba",
   "Postergó decisión", "NoResponde", "Financiacion", "Otro"
@@ -56,7 +61,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
     contactoId: "",
     propiedadConsultada: "",
     tipoPropiedad: "",
-    caracteristicas: "",
+    caracteristicas: [],
     barrio: "",
     operacionBuscada: "Compra",
     presupuestoMax: "",
@@ -83,7 +88,9 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
         ...consulta,
         propiedadConsultada: consulta.propiedadConsultada || consulta.productoConsultado || "",
         tipoPropiedad: consulta.tipoPropiedad || consulta.categoriaProducto || "",
-        caracteristicas: consulta.caracteristicas || consulta.variante || "",
+        caracteristicas: Array.isArray(consulta.caracteristicas)
+          ? consulta.caracteristicas
+          : (consulta.caracteristicas ? consulta.caracteristicas.split(',').map(s => s.trim()).filter(Boolean) : []),
         presupuestoMax: consulta.presupuestoMax || "",
         precioCotizado: consulta.precioCotizado || "",
         proximoSeguimiento: consulta.proximoSeguimiento || ""
@@ -93,7 +100,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
         contactoId: "",
         propiedadConsultada: "",
         tipoPropiedad: "",
-        caracteristicas: "",
+        caracteristicas: [],
         barrio: "",
         operacionBuscada: "Compra",
         presupuestoMax: "",
@@ -294,13 +301,35 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
                   placeholder="Nueva Córdoba, General Paz..."
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 col-span-2">
                 <Label>Características buscadas</Label>
-                <Input
-                  value={formData.caracteristicas}
-                  onChange={(e) => setFormData({ ...formData, caracteristicas: e.target.value })}
-                  placeholder="2 dorm., 80m², con cochera"
-                />
+                <div className="flex flex-wrap gap-2 p-3 border rounded-md bg-white min-h-[44px]">
+                  {CARACTERISTICAS_OPCIONES.map(c => {
+                    const selected = (formData.caracteristicas || []).includes(c);
+                    return (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => {
+                          const current = formData.caracteristicas || [];
+                          setFormData({
+                            ...formData,
+                            caracteristicas: selected
+                              ? current.filter(x => x !== c)
+                              : [...current, c]
+                          });
+                        }}
+                        className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
+                          selected
+                            ? 'bg-slate-900 text-white border-slate-900'
+                            : 'bg-white text-slate-600 border-slate-300 hover:border-slate-500'
+                        }`}
+                      >
+                        {c}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               <div className="space-y-2">
                 <Label>Precio de propiedad mostrada</Label>

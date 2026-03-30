@@ -50,6 +50,10 @@
       },
       "description": "Barrios o zonas de inter\u00e9s"
     },
+    "barrio": {
+      "type": "string",
+      "description": "Barrio o zona en texto libre"
+    },
     "precioMin": {
       "type": "number",
       "description": "Precio m\u00ednimo buscado"
@@ -75,8 +79,11 @@
       "description": "Cantidad de dormitorios (0 = monoambiente)"
     },
     "caracteristicas": {
-      "type": "string",
-      "description": "Caracter\u00edsticas adicionales libres"
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Caracter\u00edsticas buscadas (selecci\u00f3n m\u00faltiple)"
     },
     "operacionBuscada": {
       "type": "string",
