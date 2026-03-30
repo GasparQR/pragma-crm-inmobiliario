@@ -15,6 +15,7 @@ import Pipeline from './pages/Pipeline';
 import Plantillas from './pages/Plantillas';
 import Postventa from './pages/Postventa';
 import PropietarioDetalle from './pages/PropietarioDetalle';
+import Propiedades from './pages/Propiedades';
 import Propietarios from './pages/Propietarios';
 import Reportes from './pages/Reportes';
 import Variables from './pages/Variables';
@@ -40,6 +41,7 @@ export const PAGES = {
     "Plantillas": Plantillas,
     "Postventa": Postventa,
     "PropietarioDetalle": PropietarioDetalle,
+    "Propiedades": Propiedades,
     "Propietarios": Propietarios,
     "Reportes": Reportes,
     "Variables": Variables,
