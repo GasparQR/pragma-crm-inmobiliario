@@ -119,6 +119,7 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
         consultaId: consulta.id,
         contenidoEnviado: msg,
         accion: "AbrirWhatsApp",
+        workspace_id: workspace?.id
       });
     } catch (error) {
       console.error("Error al registrar envío:", error);
@@ -135,7 +136,8 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
       contenidoFinal: mensaje,
       canal: "WhatsApp",
       enviado: true,
-      fechaEnvio: new Date().toISOString()
+      fechaEnvio: new Date().toISOString(),
+      workspace_id: workspace?.id
     });
 
     // Actualizar consulta
