@@ -17,7 +17,6 @@ const NAV_ITEMS = [
   { name: "Consultas / Leads", icon: List, page: "Consultas" },
   { name: "Clientes", icon: Users, page: "Contactos" },
   { name: "Propietarios", icon: Users, page: "Propietarios" },
-  { name: "Propiedades", icon: Building2, page: "Propiedades" },
   { name: "Operaciones", icon: LayoutDashboard, page: "Operaciones" },
   { name: "Post-operación", icon: CheckCircle2, page: "Postventa" },
   { name: "Ajustes", icon: Settings, page: "Ajustes" },
