@@ -9,9 +9,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { User, Search, Calendar, Plus } from "lucide-react";
+import { User, Search, Calendar, Plus, CalendarSync } from "lucide-react";
 import moment from "moment";
 import { getNextBusinessDay } from "@/components/utils/dateUtils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { isConnected as isGCalConnected, createCalendarEvent } from "@/lib/googleCalendar";
 
 const CANALES_DEFAULT = [
   "Zona Prop", "Argenprop", "MercadoLibre", "La Voz del Interior",
@@ -36,6 +38,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
   const [showNewContact, setShowNewContact] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [syncGCal, setSyncGCal] = useState(false);
   const { workspace } = useWorkspace();
 
   const { data: etapas = [] } = useQuery({
@@ -167,6 +170,25 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
       } else {
         await base44.entities.Consulta.create(dataToSave);
         toast.success("Consulta / lead creada");
+
+        if (syncGCal && isGCalConnected() && formData.proximoSeguimiento) {
+          try {
+            await createCalendarEvent({
+              title: formData.propiedadConsultada,
+              description: [
+                formData.tipoPropiedad && `Tipo: ${formData.tipoPropiedad}`,
+                formData.operacionBuscada && `Operación: ${formData.operacionBuscada}`,
+                formData.barrio && `Barrio: ${formData.barrio}`,
+                formData.prioridad && `Prioridad: ${formData.prioridad}`,
+              ].filter(Boolean).join("\n"),
+              date: formData.proximoSeguimiento,
+              contactName: contacto?.nombre,
+            });
+            toast.success("Evento creado en Google Calendar");
+          } catch {
+            toast.error("No se pudo crear el evento en Google Calendar");
+          }
+        }
       }
       onSave?.();
       onOpenChange(false);
@@ -393,6 +415,22 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
                       {MOTIVOS_PERDIDA.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                     </SelectContent>
                   </Select>
+                </div>
+              )}
+
+              {!consulta && isGCalConnected() && (
+                <div className="col-span-2 flex items-center gap-3 p-3 bg-slate-50 rounded-xl border">
+                  <Checkbox
+                    id="syncGCal"
+                    checked={syncGCal}
+                    onCheckedChange={(checked) => setSyncGCal(!!checked)}
+                  />
+                  <div className="flex items-center gap-2">
+                    <CalendarSync className="w-4 h-4 text-slate-500" />
+                    <Label htmlFor="syncGCal" className="cursor-pointer text-sm font-normal">
+                      Sincronizar con Google Calendar
+                    </Label>
+                  </div>
                 </div>
               )}
             </div>

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Settings, MessageSquare, Kanban, Users } from "lucide-react";
+import { ArrowLeft, Settings, MessageSquare, Kanban, Users, CalendarSync } from "lucide-react";
 
 const OPCIONES = [
   {
@@ -39,6 +39,13 @@ const OPCIONES = [
     icon: MessageSquare,
     page: "ListasWhatsApp",
     color: "bg-green-100 text-green-700"
+  },
+  {
+    title: "Google Calendar",
+    description: "Conectá tu cuenta de Google para sincronizar seguimientos con Google Calendar",
+    icon: CalendarSync,
+    page: "GoogleCalendarConfig",
+    color: "bg-red-100 text-red-700"
   }
 ];
 

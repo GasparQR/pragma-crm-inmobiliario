@@ -6,6 +6,7 @@ import Contactos from './pages/Contactos';
 import Dashboard from './pages/Dashboard';
 import EditorListaWhatsApp from './pages/EditorListaWhatsApp';
 import ExportarVentas from './pages/ExportarVentas';
+import GoogleCalendarConfig from './pages/GoogleCalendarConfig';
 import Home from './pages/Home';
 import Hoy from './pages/Hoy';
 import ListasWhatsApp from './pages/ListasWhatsApp';
@@ -32,6 +33,7 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "EditorListaWhatsApp": EditorListaWhatsApp,
     "ExportarVentas": ExportarVentas,
+    "GoogleCalendarConfig": GoogleCalendarConfig,
     "Home": Home,
     "Hoy": Hoy,
     "ListasWhatsApp": ListasWhatsApp,
