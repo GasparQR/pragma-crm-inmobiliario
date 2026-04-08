@@ -1,5 +1,7 @@
 const SCOPES = "https://www.googleapis.com/auth/calendar.events";
 const CALENDAR_API = "https://www.googleapis.com/calendar/v3";
+const DEFAULT_TOKEN_EXPIRY_SECONDS = 3600;
+const DEFAULT_REMINDER_MINUTES = 60;
 
 const STORAGE_KEY = "pragma_gcal_token";
 const STORAGE_EXPIRY_KEY = "pragma_gcal_token_expiry";
@@ -84,7 +86,7 @@ export async function connect() {
           return;
         }
         const accessToken = tokenResponse.access_token;
-        const expiresIn = tokenResponse.expires_in || 3600;
+        const expiresIn = tokenResponse.expires_in || DEFAULT_TOKEN_EXPIRY_SECONDS;
         const expiry = Date.now() + expiresIn * 1000;
 
         localStorage.setItem(STORAGE_KEY, accessToken);
@@ -148,7 +150,7 @@ export async function createCalendarEvent({ title, description, date, contactNam
     end: { date },
     reminders: {
       useDefault: false,
-      overrides: [{ method: "popup", minutes: 60 }],
+      overrides: [{ method: "popup", minutes: DEFAULT_REMINDER_MINUTES }],
     },
   };
 

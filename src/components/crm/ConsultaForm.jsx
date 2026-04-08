@@ -185,7 +185,8 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
               contactName: contacto?.nombre,
             });
             toast.success("Evento creado en Google Calendar");
-          } catch {
+          } catch (err) {
+            console.error("Google Calendar sync failed:", err);
             toast.error("No se pudo crear el evento en Google Calendar");
           }
         }
