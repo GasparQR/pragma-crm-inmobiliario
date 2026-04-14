@@ -1,8 +1,8 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
   LayoutDashboard, Kanban, List, Users, Calendar,
-  Menu, X, CheckCircle2, PanelLeftClose, PanelLeftOpen, Building2, Settings, Home
+  Menu, X, CheckCircle2, PanelLeftClose, PanelLeftOpen, Settings, Home
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";

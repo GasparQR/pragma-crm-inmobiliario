@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCurrentUser } from "@/components/hooks/useCurrentUser";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
@@ -20,17 +20,6 @@ import { cn } from "@/lib/utils";
 
 const CATEGORIAS = ["iPhone", "Mac", "iPad", "AirPods", "Apple Watch", "Accesorios", "General"];
 const ETAPAS = ["Nuevo", "Seguimiento", "Concretado", "Perdido", "General"];
-
-const VARIABLES = [
-  { key: "{NOMBRE}", desc: "Nombre del cliente" },
-  { key: "{PRODUCTO}", desc: "Producto consultado" },
-  { key: "{VARIANTE}", desc: "Variante (color, capacidad)" },
-  { key: "{PRECIO}", desc: "Precio cotizado" },
-  { key: "{MONEDA}", desc: "Moneda (US$ o $)" },
-  { key: "{GARANTIA}", desc: "Garantía incluida" },
-  { key: "{ENTREGA}", desc: "Tiempo de entrega" },
-  { key: "{PAGO}", desc: "Medios de pago" }
-];
 
 const DATOS_PRUEBA = {
   "{NOMBRE}": "Juan",
@@ -59,20 +48,20 @@ export default function Plantillas() {
   const { data: currentUser } = useCurrentUser();
   const { workspace } = useWorkspace();
 
-  const { data: plantillas = [], refetch } = useQuery({
+  const { data: plantillas = [] } = useQuery({
     queryKey: ['plantillas', workspace?.id],
-    queryFn: () => workspace ? base44.entities.PlantillaWhatsApp.filter({ workspace_id: workspace.id }, "-created_date") : [],
+    queryFn: () => workspace ? api.entities.PlantillaWhatsApp.filter({ workspace_id: workspace.id }, "-created_date") : [],
     enabled: !!workspace
   });
 
   const { data: variablesDB = [] } = useQuery({
     queryKey: ['variables', workspace?.id],
-    queryFn: () => workspace ? base44.entities.VariablePlantilla.filter({ workspace_id: workspace.id }) : [],
+    queryFn: () => workspace ? api.entities.VariablePlantilla.filter({ workspace_id: workspace.id }) : [],
     enabled: !!workspace
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.PlantillaWhatsApp.create({ ...data, workspace_id: workspace?.id }),
+    mutationFn: (data) => api.entities.PlantillaWhatsApp.create({ ...data, workspace_id: workspace?.id }),
     onSuccess: () => {
        queryClient.invalidateQueries({ queryKey: ['plantillas', workspace?.id] });
        toast.success("Plantilla creada");
@@ -81,7 +70,7 @@ export default function Plantillas() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.PlantillaWhatsApp.update(id, data),
+    mutationFn: ({ id, data }) => api.entities.PlantillaWhatsApp.update(id, data),
     onSuccess: () => {
        queryClient.invalidateQueries({ queryKey: ['plantillas', workspace?.id] });
        toast.success("Plantilla actualizada");
@@ -90,7 +79,7 @@ export default function Plantillas() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.PlantillaWhatsApp.delete(id),
+    mutationFn: (id) => api.entities.PlantillaWhatsApp.delete(id),
     onSuccess: () => {
        queryClient.invalidateQueries({ queryKey: ['plantillas', workspace?.id] });
        toast.success("Plantilla eliminada");

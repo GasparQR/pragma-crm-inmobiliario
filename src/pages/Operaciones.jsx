@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -13,7 +13,6 @@ import { ArrowLeft, Eye, Search, DollarSign, TrendingUp, Building2, Plus, Downlo
 import { useWorkspace } from "@/components/context/WorkspaceContext";
 import { format } from "date-fns";
 import OperacionForm from "@/components/ventas/OperacionForm";
-import { Link as RouterLink } from "react-router-dom";
 
 const TIPOS_OPERACION = ["Venta", "Alquiler", "Alquiler Temporal", "Tasación"];
 const ESTADOS = ["En gestión", "Boleto firmado", "Escriturada", "Entregada", "Caída"];
@@ -39,7 +38,7 @@ export default function Operaciones() {
 
   const { data: operaciones = [], isLoading } = useQuery({
     queryKey: ['operaciones', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Venta.filter({ workspace_id: workspace.id }, "-fecha") : [],
+    queryFn: () => workspace ? api.entities.Venta.filter({ workspace_id: workspace.id }, "-fecha") : [],
     enabled: !!workspace
   });
 
@@ -144,7 +143,7 @@ export default function Operaciones() {
         {/* Filtros */}
         <Card>
           <CardContent className="p-4">
-            <div className="grid md:grid-cols-5 gap-4">
+            <div className="grid md:grid-cols-6 gap-4">
               <div className="relative md:col-span-2">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <Input placeholder="Buscar por cliente, propiedad, barrio..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
@@ -163,7 +162,8 @@ export default function Operaciones() {
                   {TIPOS_OPERACION.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                 </SelectContent>
               </Select>
-              <Input type="date" placeholder="Desde" value={fechaDesde} onChange={(e) => setFechaDesde(e.target.value)} />
+              <Input type="date" aria-label="Fecha desde" value={fechaDesde} onChange={(e) => setFechaDesde(e.target.value)} />
+              <Input type="date" aria-label="Fecha hasta" value={fechaHasta} onChange={(e) => setFechaHasta(e.target.value)} />
             </div>
           </CardContent>
         </Card>

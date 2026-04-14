@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery } from "@tanstack/react-query";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import WhatsAppSender from "@/components/crm/WhatsAppSender";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
-  Plus, TrendingUp, Clock, CheckCircle2, 
+  Plus, TrendingUp, Clock, 
   Kanban, List, Users, BarChart3,
   Calendar, AlertCircle, ArrowRight, Zap, XCircle, DollarSign, MessageCircle
 } from "lucide-react";
@@ -29,22 +29,18 @@ export default function Home() {
 
   const { data: consultas = [], refetch } = useQuery({
     queryKey: ['consultas-home', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Consulta.filter({ workspace_id: workspace.id }, "-created_date", 1000) : [],
+    queryFn: () => workspace ? api.entities.Consulta.filter({ workspace_id: workspace.id }, "-created_date", 1000) : [],
     enabled: !!workspace
   });
 
   const { data: ventas = [] } = useQuery({
     queryKey: ['ventas-home', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Venta.filter({ workspace_id: workspace.id }, "-fecha", 500) : [],
+    queryFn: () => workspace ? api.entities.Venta.filter({ workspace_id: workspace.id }, "-fecha", 500) : [],
     enabled: !!workspace
   });
 
   const today = moment();
-  
-  // KPIs
-  const nuevasHoy = consultas.filter(c => moment(c.fechaConsulta).isSame(today, 'day')).length;
-  const nuevas7d = consultas.filter(c => moment(c.fechaConsulta).isAfter(today.clone().subtract(7, 'days'))).length;
-  
+
   const pendientesHoy = consultas.filter(c => 
     c.proximoSeguimiento && 
     moment(c.proximoSeguimiento).isSame(today, 'day') &&
@@ -56,16 +52,6 @@ export default function Home() {
     moment(c.proximoSeguimiento).isBefore(today, 'day') &&
     !c.concretado && c.etapa !== "No concretado"
   );
-
-  const concretados7d = consultas.filter(c => 
-    c.concretado === true && 
-    moment(c.updated_date).isAfter(today.clone().subtract(7, 'days'))
-  ).length;
-  
-  const concretados30d = consultas.filter(c => 
-    c.concretado === true && 
-    moment(c.updated_date).isAfter(today.clone().subtract(30, 'days'))
-  ).length;
 
   // Dashboard avanzado KPIs
   const last7Days = consultas.filter(c => moment(c.created_date).isAfter(today.clone().subtract(7, 'days')));

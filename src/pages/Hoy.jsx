@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,18 +30,18 @@ export default function Hoy() {
 
   const { data: consultas = [], refetch } = useQuery({
     queryKey: ['consultas-hoy', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Consulta.filter({ workspace_id: workspace.id }, "-created_date", 1000) : [],
+    queryFn: () => workspace ? api.entities.Consulta.filter({ workspace_id: workspace.id }, "-created_date", 1000) : [],
     enabled: !!workspace
   });
 
-  const { data: ventas = [], refetch: refetchVentas } = useQuery({
+  const { data: ventas = [] } = useQuery({
     queryKey: ['ventas-postventa-hoy', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Venta.filter({ workspace_id: workspace.id, postventaActiva: true }, "-created_date", 500) : [],
+    queryFn: () => workspace ? api.entities.Venta.filter({ workspace_id: workspace.id, postventaActiva: true }, "-created_date", 500) : [],
     enabled: !!workspace
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Consulta.update(id, data),
+    mutationFn: ({ id, data }) => api.entities.Consulta.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['consultas-hoy', workspace?.id] });
       toast.success("Actualizado");
@@ -49,7 +49,7 @@ export default function Hoy() {
   });
 
   const updateVentaMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Venta.update(id, data),
+    mutationFn: ({ id, data }) => api.entities.Venta.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ventas-postventa-hoy', workspace?.id] });
       toast.success("Postventa actualizada");

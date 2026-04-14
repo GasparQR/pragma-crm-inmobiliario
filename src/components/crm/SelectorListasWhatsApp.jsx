@@ -1,11 +1,10 @@
 import { useState, useMemo } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Copy, Send } from "lucide-react";
 import { toast } from "sonner";
 
@@ -19,7 +18,7 @@ export default function SelectorListasWhatsApp({ contactoId, contactoWhatsapp, c
     queryKey: ['listas-publicadas', workspace?.id],
     queryFn: async () => {
       if (!workspace?.id) return [];
-      const allListas = await base44.entities.ListaWhatsApp.filter(
+      const allListas = await api.entities.ListaWhatsApp.filter(
         { workspace_id: workspace.id },
         "-updated_date",
         1000
@@ -43,7 +42,8 @@ export default function SelectorListasWhatsApp({ contactoId, contactoWhatsapp, c
   const registrarEnvioMutation = useMutation({
     mutationFn: async (accion) => {
       // Crear log de envío
-      await base44.entities.EnvioWhatsApp.create({
+      await api.entities.EnvioWhatsApp.create({
+        workspace_id: workspace?.id,
         contactoId,
         consultaId: consultaId || null,
         listaId: selectedListaId,
@@ -53,9 +53,9 @@ export default function SelectorListasWhatsApp({ contactoId, contactoWhatsapp, c
 
       // Actualizar ultimoContacto en Consulta si existe
       if (consultaId) {
-        const consultas = await base44.entities.Consulta.filter({ id: consultaId });
+        const consultas = await api.entities.Consulta.filter({ id: consultaId });
         if (consultas.length > 0) {
-          await base44.entities.Consulta.update(consultaId, {
+          await api.entities.Consulta.update(consultaId, {
             ultimoContacto: new Date().toISOString()
           });
         }

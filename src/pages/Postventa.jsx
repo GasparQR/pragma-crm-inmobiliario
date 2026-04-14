@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCurrentUser } from "@/components/hooks/useCurrentUser";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
@@ -51,15 +51,15 @@ export default function Postventa() {
 
   const postventaDays = currentUser?.postventa_follow_up_days ?? 7;
 
-  const { data: ventas = [], isLoading } = useQuery({
+  const { data: ventas = [] } = useQuery({
     queryKey: ['ventas-postventa', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Venta.filter({ workspace_id: workspace.id, postventaActiva: true }, "-proximoSeguimientoPostventa", 1000) : [],
+    queryFn: () => workspace ? api.entities.Venta.filter({ workspace_id: workspace.id, postventaActiva: true }, "-proximoSeguimientoPostventa", 1000) : [],
     enabled: !!workspace
   });
 
   const { data: contactos = [] } = useQuery({
     queryKey: ['contactos-postventa-map', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Contacto.filter({ workspace_id: workspace.id }) : [],
+    queryFn: () => workspace ? api.entities.Contacto.filter({ workspace_id: workspace.id }) : [],
     enabled: !!workspace
   });
 
@@ -69,7 +69,7 @@ export default function Postventa() {
   );
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Venta.update(id, data),
+    mutationFn: ({ id, data }) => api.entities.Venta.update(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['ventas-postventa', workspace?.id] })
   });
 

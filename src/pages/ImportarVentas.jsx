@@ -5,14 +5,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Upload, FileSpreadsheet, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import { normalizeRow } from "@/components/utils/importNormalization";
 import ImportPreviewTable from "@/components/ventas/ImportPreviewTable";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { toast } from "sonner";
 import { getMaxSecuenciasPorAnio, generateNextVentaCode } from "@/components/utils/ventaCodeGenerator";
 
@@ -42,7 +42,7 @@ const CAMPOS_VENTA = [
 
 export default function ImportarVentas() {
   const [paso, setPaso] = useState(PASOS.UPLOAD);
-  const [archivo, setArchivo] = useState(null);
+  const [, setArchivo] = useState(null);
   const [separador, setSeparador] = useState(",");
   const [encoding, setEncoding] = useState("UTF-8");
   const [datosRaw, setDatosRaw] = useState([]);
@@ -200,7 +200,7 @@ export default function ImportarVentas() {
       });
 
       // Crear todas las ventas (ya no hay duplicados porque los códigos son nuevos)
-      await base44.entities.Venta.bulkCreate(datosLimpios);
+      await api.entities.Venta.bulkCreate(datosLimpios);
       
       toast.success(`${datosLimpios.length} ventas importadas correctamente`);
       

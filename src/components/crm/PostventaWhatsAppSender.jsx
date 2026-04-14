@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Copy, ExternalLink, Check, Sparkles } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { toast } from "sonner";
 
 function addBusinessDays(date, days) {
@@ -40,8 +40,8 @@ export default function PostventaWhatsAppSender({ open, onOpenChange, venta, con
 
   const loadData = async () => {
     const [allPlantillas, vars] = await Promise.all([
-      base44.entities.PlantillaWhatsApp.filter({ activa: true }),
-      base44.entities.VariablePlantilla.list()
+      api.entities.PlantillaWhatsApp.filter({ activa: true }),
+      api.entities.VariablePlantilla.list()
     ]);
     setVariablesDB(vars);
     const postventa = allPlantillas.filter(p => p.etapa === 'Postventa');
@@ -108,7 +108,7 @@ export default function PostventaWhatsAppSender({ open, onOpenChange, venta, con
       };
     }
 
-    await base44.entities.Venta.update(venta.id, updates);
+    await api.entities.Venta.update(venta.id, updates);
     toast.success(paso === 0 ? "Enviado. Próximo contacto en 7 días hábiles." : "Postventa cerrada.");
     setLoading(false);
     onMessageSent?.();

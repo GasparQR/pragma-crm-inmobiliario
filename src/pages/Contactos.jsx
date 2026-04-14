@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCurrentUser } from "@/components/hooks/useCurrentUser";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
@@ -10,13 +10,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Edit, Phone, MessageCircle, MapPin, User, Tag, ArrowLeft, Trash2, ListCheck } from "lucide-react";
+import { Plus, Search, Edit, Phone, MessageCircle, MapPin, User, ArrowLeft, Trash2, ListCheck } from "lucide-react";
 import { toast } from "sonner";
-import moment from "moment";
 import DetalleContactoDialog from "@/components/crm/DetalleContactoDialog";
 import DialogSelectorListasWhatsApp from "@/components/crm/DialogSelectorListasWhatsApp";
 
@@ -46,18 +45,18 @@ export default function Contactos() {
 
   const { data: contactos = [], refetch } = useQuery({
     queryKey: ['contactos', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Contacto.filter({ workspace_id: workspace.id }, "-created_date", 500) : [],
+    queryFn: () => workspace ? api.entities.Contacto.filter({ workspace_id: workspace.id }, "-created_date", 500) : [],
     enabled: !!workspace
   });
 
   const { data: consultas = [] } = useQuery({
     queryKey: ['consultas-contactos', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Consulta.filter({ workspace_id: workspace.id }, "-created_date", 1000) : [],
+    queryFn: () => workspace ? api.entities.Consulta.filter({ workspace_id: workspace.id }, "-created_date", 1000) : [],
     enabled: !!workspace
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Contacto.create({ ...data, workspace_id: workspace?.id }),
+    mutationFn: (data) => api.entities.Contacto.create({ ...data, workspace_id: workspace?.id }),
     onSuccess: () => {
        queryClient.invalidateQueries({ queryKey: ['contactos', workspace?.id] });
        toast.success("Contacto creado");
@@ -66,7 +65,7 @@ export default function Contactos() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Contacto.update(id, data),
+    mutationFn: ({ id, data }) => api.entities.Contacto.update(id, data),
     onSuccess: () => {
        queryClient.invalidateQueries({ queryKey: ['contactos', workspace?.id] });
        toast.success("Contacto actualizado");
@@ -75,7 +74,7 @@ export default function Contactos() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Contacto.delete(id),
+    mutationFn: (id) => api.entities.Contacto.delete(id),
     onSuccess: () => {
        queryClient.invalidateQueries({ queryKey: ['contactos', workspace?.id] });
        toast.success("Contacto eliminado");
@@ -95,21 +94,6 @@ export default function Contactos() {
     });
     setSelectedContacto(null);
     setShowForm(false);
-  };
-
-  const handleEdit = (contacto) => {
-    setSelectedContacto(contacto);
-    setFormData({
-      nombre: contacto.nombre || "",
-      apellido: contacto.apellido || "",
-      whatsapp: contacto.whatsapp || "",
-      numeroTelefono: contacto.numeroTelefono || "",
-      ciudad: contacto.ciudad || "",
-      canalOrigen: contacto.canalOrigen || "",
-      notas: contacto.notas || "",
-      tags: contacto.tags || []
-    });
-    setShowForm(true);
   };
 
   const handleSubmit = () => {

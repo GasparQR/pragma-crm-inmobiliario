@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -42,14 +42,13 @@ export default function VentaForm({ open, onOpenChange, consulta, onVentaCreada,
   });
 
   const [gananciaCalculada, setGananciaCalculada] = useState(null);
-  const [modoGuardado, setModoGuardado] = useState("borrador"); // "borrador" o "finalizada"
   const [submitting, setSubmitting] = useState(false);
 
   const { data: proveedores = [] } = useQuery({
     queryKey: ['proveedores-activos', workspace?.id],
     queryFn: async () => {
       if (!workspace) return [];
-      const all = await base44.entities.Proveedor.filter({ workspace_id: workspace.id });
+      const all = await api.entities.Proveedor.filter({ workspace_id: workspace.id });
       return all.filter(p => p.activo !== false);
     },
     enabled: open && !!workspace
@@ -180,11 +179,11 @@ export default function VentaForm({ open, onOpenChange, consulta, onVentaCreada,
             : formData.proveedorTexto
         };
         
-        await base44.entities.Venta.update(ventaExistente.id, ventaData);
+        await api.entities.Venta.update(ventaExistente.id, ventaData);
         toast.success(finalizar ? "Venta finalizada" : "Venta actualizada");
       } else {
         // Crear nueva venta
-        const ventas = await base44.entities.Venta.list("-created_date", 1);
+        const ventas = await api.entities.Venta.list("-created_date", 1);
         let nuevoCodigo = `V-${new Date().getFullYear()}-000001`;
         
         if (ventas.length > 0 && ventas[0].codigo) {
@@ -224,17 +223,17 @@ export default function VentaForm({ open, onOpenChange, consulta, onVentaCreada,
           workspace_id: workspace?.id
         };
 
-        const ventaCreada = await base44.entities.Venta.create(ventaData);
+        const ventaCreada = await api.entities.Venta.create(ventaData);
 
         // Si se ingresó WhatsApp, crear contacto automáticamente y actualizar la venta
         if (formData.whatsappCliente && !formData.contactoId) {
-          const contactoCreado = await base44.entities.Contacto.create({
+          const contactoCreado = await api.entities.Contacto.create({
             nombre: formData.nombreSnapshot,
             whatsapp: formData.whatsappCliente,
             canalOrigen: formData.marketplace || "Otro",
             workspace_id: workspace?.id
           });
-          await base44.entities.Venta.update(ventaCreada.id, { contactoId: contactoCreado.id });
+          await api.entities.Venta.update(ventaCreada.id, { contactoId: contactoCreado.id });
         }
 
         toast.success(finalizar ? "Venta finalizada" : "Borrador guardado");

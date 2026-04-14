@@ -1,21 +1,20 @@
-import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, DollarSign, TrendingUp, Package, ShoppingBag, Users } from "lucide-react";
+import { ArrowLeft, DollarSign, TrendingUp, Package, ShoppingBag } from "lucide-react";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function VentasDashboard() {
   const { workspace } = useWorkspace();
 
-  const { data: ventas = [], isLoading } = useQuery({
+  const { data: ventas = [] } = useQuery({
     queryKey: ['ventas', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Venta.filter({ workspace_id: workspace.id }, "-created_date") : [],
+    queryFn: () => workspace ? api.entities.Venta.filter({ workspace_id: workspace.id }, "-created_date") : [],
     enabled: !!workspace
   });
 

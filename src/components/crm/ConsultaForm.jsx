@@ -6,14 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { User, Search, Calendar, Plus, CalendarSync } from "lucide-react";
 import moment from "moment";
 import { getNextBusinessDay } from "@/components/utils/dateUtils";
 import { Checkbox } from "@/components/ui/checkbox";
-import { isConnected as isGCalConnected, createCalendarEvent } from "@/lib/googleCalendar";
+import { isGoogleCalendarConnected as isGCalConnected, createCalendarEvent } from "@/lib/googleCalendar";
 
 const CANALES_DEFAULT = [
   "Zona Prop", "Argenprop", "MercadoLibre", "La Voz del Interior",
@@ -45,7 +45,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
     queryKey: ['pipeline-stages', workspace?.id],
     queryFn: async () => {
       if (!workspace) return [];
-      const stages = await base44.entities.PipelineStage.filter({ workspace_id: workspace.id }, "orden", 100);
+      const stages = await api.entities.PipelineStage.filter({ workspace_id: workspace.id }, "orden", 100);
       return stages.filter(s => s.activa !== false);
     },
     enabled: open && !!workspace
@@ -53,7 +53,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
 
   const { data: tags = [] } = useQuery({
     queryKey: ['tags', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Tag.filter({ workspace_id: workspace.id }) : [],
+    queryFn: () => workspace ? api.entities.Tag.filter({ workspace_id: workspace.id }) : [],
     enabled: open && !!workspace
   });
 
@@ -74,7 +74,8 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
     prioridad: "Media",
     canalOrigen: "",
     proximoSeguimiento: getNextBusinessDay(new Date(), 3),
-    motivoPerdida: ""
+    motivoPerdida: "",
+    concretado: false,
   });
 
   const [newContact, setNewContact] = useState({
@@ -96,7 +97,8 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
           : (consulta.caracteristicas ? consulta.caracteristicas.split(',').map(s => s.trim()).filter(Boolean) : []),
         presupuestoMax: consulta.presupuestoMax || "",
         precioCotizado: consulta.precioCotizado || "",
-        proximoSeguimiento: consulta.proximoSeguimiento || ""
+        proximoSeguimiento: consulta.proximoSeguimiento || "",
+        concretado: !!consulta.concretado,
       });
     } else {
       setFormData({
@@ -113,14 +115,15 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
         prioridad: "Media",
         canalOrigen: "",
         proximoSeguimiento: getNextBusinessDay(new Date(), 3),
-        motivoPerdida: ""
+        motivoPerdida: "",
+        concretado: false,
       });
     }
   }, [consulta, open]);
 
   const loadContactos = async () => {
     if (!workspace) return;
-    const data = await base44.entities.Contacto.filter({ workspace_id: workspace.id }, "-created_date", 100);
+    const data = await api.entities.Contacto.filter({ workspace_id: workspace.id }, "-created_date", 100);
     setContactos(data);
   };
 
@@ -130,7 +133,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
       return;
     }
     setLoading(true);
-    const created = await base44.entities.Contacto.create({
+    const created = await api.entities.Contacto.create({
       ...newContact,
       numeroTelefono: newContact.whatsapp,
       workspace_id: workspace?.id
@@ -165,10 +168,10 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
         dataToSave.etapa = "Operación cerrada";
       }
       if (consulta) {
-        await base44.entities.Consulta.update(consulta.id, dataToSave);
+        await api.entities.Consulta.update(consulta.id, dataToSave);
         toast.success("Consulta actualizada");
       } else {
-        await base44.entities.Consulta.create(dataToSave);
+        await api.entities.Consulta.create(dataToSave);
         toast.success("Consulta / lead creada");
 
         if (syncGCal && isGCalConnected() && formData.proximoSeguimiento) {
@@ -193,7 +196,7 @@ export default function ConsultaForm({ open, onOpenChange, consulta, onSave }) {
       }
       onSave?.();
       onOpenChange(false);
-    } catch (error) {
+    } catch {
       toast.error("Error al guardar la consulta");
     } finally {
       setSubmitting(false);

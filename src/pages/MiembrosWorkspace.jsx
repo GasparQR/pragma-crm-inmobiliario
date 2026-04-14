@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { base44 } from "@/api/base44Client";
+import { api, inviteWorkspaceMember } from "@/api/client";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -25,23 +25,23 @@ export default function MiembrosWorkspace() {
   // Obtener usuario actual
   const { data: currentUser } = useQuery({
     queryKey: ["current-user"],
-    queryFn: () => base44.auth.me(),
+    queryFn: () => api.auth.me(),
   });
 
   // Obtener miembros del workspace
   const { data: members = [], isLoading } = useQuery({
     queryKey: ["workspace-members", workspace?.id],
     queryFn: () => workspace
-      ? base44.entities.WorkspaceMember.filter({ workspace_id: workspace.id })
+      ? api.entities.WorkspaceMember.filter({ workspace_id: workspace.id })
       : [],
     enabled: !!workspace,
   });
 
-  const currentMember = members.find((m) => m.user_id === currentUser?.email);
+  const currentMember = members.find((m) => m.user_id === currentUser?.id);
   const isAdmin = currentMember?.role === "admin";
 
   const deleteMutation = useMutation({
-    mutationFn: (memberId) => base44.entities.WorkspaceMember.delete(memberId),
+    mutationFn: (memberId) => api.entities.WorkspaceMember.delete(memberId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workspace-members", workspace?.id] });
       toast.success("Miembro eliminado");
@@ -49,7 +49,7 @@ export default function MiembrosWorkspace() {
   });
 
   const updateRoleMutation = useMutation({
-    mutationFn: ({ id, role }) => base44.entities.WorkspaceMember.update(id, { role }),
+    mutationFn: ({ id, role }) => api.entities.WorkspaceMember.update(id, { role }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workspace-members", workspace?.id] });
       toast.success("Rol actualizado");
@@ -62,21 +62,18 @@ export default function MiembrosWorkspace() {
       return;
     }
     // Check not already a member
-    if (members.some((m) => m.user_id === inviteEmail.trim())) {
+    const inviteLower = inviteEmail.trim().toLowerCase();
+    if (members.some((m) => (m.email || "").toLowerCase() === inviteLower)) {
       toast.error("Ese usuario ya es miembro del workspace");
       return;
     }
 
     setInviting(true);
     try {
-      // Invitar al usuario a la app
-      await base44.users.inviteUser(inviteEmail.trim(), inviteRole === "admin" ? "admin" : "user");
-
-      // Crear registro de membresía para que el usuario tenga acceso al workspace
-      await base44.entities.WorkspaceMember.create({
-        workspace_id: workspace.id,
-        user_id: inviteEmail.trim(),
-        role: inviteRole,
+      await inviteWorkspaceMember({
+        email: inviteEmail.trim(),
+        role: inviteRole === "admin" ? "admin" : "member",
+        workspaceId: workspace.id,
       });
 
       queryClient.invalidateQueries({ queryKey: ["workspace-members", workspace?.id] });
@@ -136,7 +133,7 @@ export default function MiembrosWorkspace() {
               <p className="text-slate-400 text-sm py-8 text-center px-6">No hay miembros aún.</p>
             ) : (
               members.map((member) => {
-                const isSelf = member.user_id === currentUser?.email;
+                const isSelf = member.user_id === currentUser?.id;
                 const isOwner = member.user_id === workspace?.owner_user_id;
 
                 return (
@@ -149,7 +146,9 @@ export default function MiembrosWorkspace() {
                         }
                       </div>
                       <div>
-                        <p className="font-medium text-slate-900 text-sm">{member.user_id}</p>
+                        <p className="font-medium text-slate-900 text-sm">
+                          {member.full_name || member.email || member.user_id}
+                        </p>
                         <p className="text-xs text-slate-400">
                           {isSelf && "Vos"}
                           {isOwner && " · Propietario"}

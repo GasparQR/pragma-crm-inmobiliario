@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SelectorListasWhatsApp from "./SelectorListasWhatsApp";
 import HistorialEnvios from "./HistorialEnvios";
 import moment from "moment";
@@ -18,7 +16,7 @@ export default function DetalleConsultaDialog({ consulta, open, onOpenChange, on
 
   useEffect(() => {
     if (open && consulta?.contactoId) {
-      base44.entities.Contacto.filter({ workspace_id: consulta.workspace_id, id: consulta.contactoId })
+      api.entities.Contacto.filter({ workspace_id: consulta.workspace_id, id: consulta.contactoId })
         .then(res => setContacto(res[0] || null))
         .catch(() => setContacto(null));
     } else {

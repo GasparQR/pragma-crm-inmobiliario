@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
 import { Link } from "react-router-dom";
@@ -24,13 +24,13 @@ export default function Variables() {
   const { data: variables = [] } = useQuery({
     queryKey: ['variables', workspace?.id],
     queryFn: () => workspace?.id
-      ? base44.entities.VariablePlantilla.filter({ workspace_id: workspace.id }, "-created_date")
+      ? api.entities.VariablePlantilla.filter({ workspace_id: workspace.id }, "-created_date")
       : [],
     enabled: !!workspace?.id
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.VariablePlantilla.create({ ...data, workspace_id: workspace?.id }),
+    mutationFn: (data) => api.entities.VariablePlantilla.create({ ...data, workspace_id: workspace?.id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['variables', workspace?.id] });
       toast.success("Variable creada");
@@ -39,7 +39,7 @@ export default function Variables() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.VariablePlantilla.update(id, data),
+    mutationFn: ({ id, data }) => api.entities.VariablePlantilla.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['variables', workspace?.id] });
       toast.success("Variable actualizada");
@@ -48,7 +48,7 @@ export default function Variables() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.VariablePlantilla.delete(id),
+    mutationFn: (id) => api.entities.VariablePlantilla.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['variables', workspace?.id] });
       toast.success("Variable eliminada");

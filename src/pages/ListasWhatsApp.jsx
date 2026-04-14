@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useCurrentUser } from "@/components/hooks/useCurrentUser";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
-import { ArrowLeft, Plus, Pencil, Trash2, Archive } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import moment from "moment";
 
@@ -24,13 +24,13 @@ export default function ListasWhatsApp() {
 
   const { data: listas = [], refetch } = useQuery({
     queryKey: ['listas-whatsapp', workspace?.id],
-    queryFn: () => workspace ? base44.entities.ListaWhatsApp.filter({ workspace_id: workspace.id }, "-updated_date", 1000) : [],
+    queryFn: () => workspace ? api.entities.ListaWhatsApp.filter({ workspace_id: workspace.id }, "-updated_date", 1000) : [],
     enabled: !!workspace
   });
 
   const deleteMutation = {
     mutate: async (id) => {
-      await base44.entities.ListaWhatsApp.delete(id);
+      await api.entities.ListaWhatsApp.delete(id);
       toast.success("Lista eliminada");
       refetch();
     }

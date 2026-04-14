@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCurrentUser } from "@/components/hooks/useCurrentUser";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -68,12 +67,11 @@ export default function Consultas() {
   const [sortOrder, setSortOrder] = useState("desc");
 
   const queryClient = useQueryClient();
-  const { data: currentUser } = useCurrentUser();
   const { workspace } = useWorkspace();
 
   const { data: consultas = [], refetch, isLoading } = useQuery({
     queryKey: ['consultas-list', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Consulta.filter({ workspace_id: workspace.id }, "-created_date", 2000) : [],
+    queryFn: () => workspace ? api.entities.Consulta.filter({ workspace_id: workspace.id }, "-created_date", 2000) : [],
     enabled: !!workspace
   });
 
@@ -81,7 +79,7 @@ export default function Consultas() {
     queryKey: ['pipeline-stages', workspace?.id],
     queryFn: async () => {
       if (!workspace) return [];
-      const stages = await base44.entities.PipelineStage.filter({ workspace_id: workspace.id }, "orden", 100);
+      const stages = await api.entities.PipelineStage.filter({ workspace_id: workspace.id }, "orden", 100);
       return stages.filter(s => s.activa !== false);
     },
     enabled: !!workspace
@@ -89,7 +87,7 @@ export default function Consultas() {
 
   const { data: tags = [] } = useQuery({
     queryKey: ['tags', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Tag.filter({ workspace_id: workspace.id }) : [],
+    queryFn: () => workspace ? api.entities.Tag.filter({ workspace_id: workspace.id }) : [],
     enabled: !!workspace
   });
 
@@ -97,12 +95,12 @@ export default function Consultas() {
   const canalesList = canalesDinamicos.length > 0 ? canalesDinamicos : CANALES;
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Consulta.update(id, data),
+    mutationFn: ({ id, data }) => api.entities.Consulta.update(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['consultas-list', workspace?.id] })
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Consulta.delete(id),
+    mutationFn: (id) => api.entities.Consulta.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['consultas-list', workspace?.id] });
       toast.success("Consulta eliminada");
@@ -132,10 +130,9 @@ export default function Consultas() {
     });
 
   const handleWhatsApp = (c) => { setSelectedConsulta(c); setShowWhatsApp(true); };
-  const handleEdit = (c) => { setSelectedConsulta(c); setShowForm(true); };
 
   const handleRegistrarOperacion = async (consulta) => {
-    const ops = await base44.entities.Venta.filter({ consultaId: consulta.id });
+    const ops = await api.entities.Venta.filter({ consultaId: consulta.id });
     if (ops.length > 0) {
       window.location.href = createPageUrl(`VentaDetalle?id=${ops[0].id}`);
       return;
@@ -248,7 +245,6 @@ export default function Consultas() {
               {!isLoading && consultasFiltradas.map(consulta => {
                 const vencido = consulta.proximoSeguimiento && moment(consulta.proximoSeguimiento).isBefore(moment(), 'day');
                 const busqueda = consulta.propiedadConsultada || consulta.productoConsultado;
-                const caracteristicas = consulta.caracteristicas || consulta.variante;
                 const tipo = consulta.tipoPropiedad || consulta.categoriaProducto;
 
                 return (

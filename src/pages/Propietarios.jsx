@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/api/client";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Plus, Search, Eye, Phone, Users, Building2 } from "lucide-react";
+import { ArrowLeft, Plus, Search, Eye, Phone, Building2 } from "lucide-react";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
 import { format } from "date-fns";
 
@@ -18,19 +18,9 @@ export default function Propietarios() {
 
   const { data: propietarios = [], isLoading } = useQuery({
     queryKey: ['propietarios', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Proveedor.filter({ workspace_id: workspace.id }, "-created_date") : [],
+    queryFn: () => workspace ? api.entities.Proveedor.filter({ workspace_id: workspace.id }, "-created_date") : [],
     enabled: !!workspace
   });
-
-  const { data: operaciones = [] } = useQuery({
-    queryKey: ['operaciones-propietarios', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Venta.filter({ workspace_id: workspace.id }) : [],
-    enabled: !!workspace
-  });
-
-  const calcularOperaciones = (propietarioId) => {
-    return operaciones.filter(op => op.propietarioId === propietarioId).length;
-  };
 
   const filtrados = propietarios.filter(p => {
     if (!search) return true;

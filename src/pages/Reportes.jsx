@@ -1,10 +1,10 @@
 import { useState, useMemo } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, Legend } from "recharts";
-import { TrendingUp, DollarSign, Users, Home, ArrowLeft, Percent, AlertCircle, Building2 } from "lucide-react";
+import { TrendingUp, DollarSign, Users, Home, ArrowLeft, AlertCircle, Building2 } from "lucide-react";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -22,19 +22,19 @@ export default function Reportes() {
 
   const { data: ventas = [] } = useQuery({
     queryKey: ['ventas-reportes', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Venta.filter({ workspace_id: workspace.id }, "-fecha", 500) : [],
+    queryFn: () => workspace ? api.entities.Venta.filter({ workspace_id: workspace.id }, "-fecha", 500) : [],
     enabled: !!workspace
   });
 
   const { data: consultas = [] } = useQuery({
     queryKey: ['consultas-reportes', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Consulta.filter({ workspace_id: workspace.id }, "-created_date", 1000) : [],
+    queryFn: () => workspace ? api.entities.Consulta.filter({ workspace_id: workspace.id }, "-created_date", 1000) : [],
     enabled: !!workspace
   });
 
   const { data: users = [] } = useQuery({
     queryKey: ['users-reportes'],
-    queryFn: () => base44.entities.User.list(),
+    queryFn: () => api.entities.User.list(),
   });
 
   const dias = parseInt(periodo);

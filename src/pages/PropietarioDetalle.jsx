@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { ArrowLeft, Save, Trash2, MessageCircle, Phone, Mail, Plus, X } from "lucide-react";
 import { toast } from "sonner";
-import { format } from "date-fns";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
 
 export default function PropietarioDetalle() {
@@ -30,16 +29,16 @@ export default function PropietarioDetalle() {
     fechaUltimoContacto: "", activo: true
   });
 
-  const { data: propietario, isLoading } = useQuery({
+  const { data: propietario } = useQuery({
     queryKey: ['propietario', propietarioId],
-    queryFn: () => base44.entities.Proveedor.filter({ id: propietarioId }),
+    queryFn: () => api.entities.Proveedor.filter({ id: propietarioId }),
     select: data => data[0],
     enabled: !esNuevo
   });
 
   const { data: operaciones = [] } = useQuery({
     queryKey: ['operaciones-propietario', propietarioId],
-    queryFn: () => base44.entities.Venta.filter({ propietarioId }),
+    queryFn: () => api.entities.Venta.filter({ propietarioId }),
     enabled: !esNuevo
   });
 
@@ -49,8 +48,8 @@ export default function PropietarioDetalle() {
 
   const saveMutation = useMutation({
     mutationFn: (data) => esNuevo
-      ? base44.entities.Proveedor.create({ ...data, workspace_id: workspace?.id })
-      : base44.entities.Proveedor.update(propietarioId, data),
+      ? api.entities.Proveedor.create({ ...data, workspace_id: workspace?.id })
+      : api.entities.Proveedor.update(propietarioId, data),
     onSuccess: (data) => {
       toast.success(esNuevo ? "Propietario creado" : "Propietario actualizado");
       queryClient.invalidateQueries({ queryKey: ['propietarios'] });
@@ -59,7 +58,7 @@ export default function PropietarioDetalle() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: () => base44.entities.Proveedor.delete(propietarioId),
+    mutationFn: () => api.entities.Proveedor.delete(propietarioId),
     onSuccess: () => {
       toast.success("Propietario eliminado");
       window.location.href = createPageUrl("Propietarios");

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/api/client";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
@@ -9,9 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Plus, Search, Eye, Phone, CheckCircle, XCircle, TrendingUp } from "lucide-react";
+import { ArrowLeft, Plus, Search, Eye, Phone, CheckCircle } from "lucide-react";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
-import { toast } from "sonner";
 import { format } from "date-fns";
 
 export default function Proveedores() {
@@ -20,18 +19,17 @@ export default function Proveedores() {
   const [filterVerificado, setFilterVerificado] = useState("Todos");
   const [filterActivo, setFilterActivo] = useState("activos");
 
-  const queryClient = useQueryClient();
   const { workspace } = useWorkspace();
 
   const { data: proveedores = [], isLoading } = useQuery({
     queryKey: ['proveedores', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Proveedor.filter({ workspace_id: workspace.id }, "-created_date") : [],
+    queryFn: () => workspace ? api.entities.Proveedor.filter({ workspace_id: workspace.id }, "-created_date") : [],
     enabled: !!workspace
   });
 
   const { data: ventas = [] } = useQuery({
     queryKey: ['ventas-proveedores', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Venta.filter({ workspace_id: workspace.id }) : [],
+    queryFn: () => workspace ? api.entities.Venta.filter({ workspace_id: workspace.id }) : [],
     enabled: !!workspace
   });
 

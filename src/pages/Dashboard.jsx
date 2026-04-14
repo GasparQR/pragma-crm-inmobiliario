@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery } from "@tanstack/react-query";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
 import { Link } from "react-router-dom";
@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Users, TrendingUp, CheckCircle2, XCircle, Clock, 
+  Users, TrendingUp, XCircle, Clock, 
   MessageCircle, Calendar, ArrowRight, Plus, ArrowLeft, DollarSign
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -27,13 +27,13 @@ export default function Dashboard() {
 
   const { data: consultas = [], refetch } = useQuery({
     queryKey: ['consultas-dashboard', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Consulta.filter({ workspace_id: workspace.id }, "-created_date", 500) : [],
+    queryFn: () => workspace ? api.entities.Consulta.filter({ workspace_id: workspace.id }, "-created_date", 500) : [],
     enabled: !!workspace
   });
 
   const { data: ventas = [] } = useQuery({
     queryKey: ['ventas-dashboard', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Venta.filter({ workspace_id: workspace.id }, "-fecha", 500) : [],
+    queryFn: () => workspace ? api.entities.Venta.filter({ workspace_id: workspace.id }, "-fecha", 500) : [],
     enabled: !!workspace
   });
 

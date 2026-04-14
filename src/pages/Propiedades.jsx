@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
 import { Link } from "react-router-dom";
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -17,9 +17,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import {
   ArrowLeft, Plus, Search, Building2, MapPin, DollarSign,
-  Eye, Edit, Trash2, Copy, ExternalLink, Phone, MessageCircle,
-  Home, Ruler, BedDouble, Bath, Car, Filter, Grid3X3, List,
-  TrendingUp, Tag, Calendar, MoreHorizontal, ChevronDown, X, ImageIcon
+  Eye, Edit, Trash2, MessageCircle,
+  Home, Ruler, BedDouble, Bath, Car, Grid3X3, List,
+  TrendingUp, Tag, Calendar, MoreHorizontal
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
@@ -182,7 +182,7 @@ function PropiedadForm({ open, onOpenChange, propiedad, proveedores, onSave, wor
       };
 
       if (propiedad) {
-        await base44.entities.Property.update(propiedad.id, dataToSave);
+        await api.entities.Property.update(propiedad.id, dataToSave);
         toast.success("Propiedad actualizada");
       } else {
         // Generar código interno automático
@@ -191,7 +191,7 @@ function PropiedadForm({ open, onOpenChange, propiedad, proveedores, onSave, wor
           const rand = Math.floor(Math.random() * 9000) + 1000;
           dataToSave.codigoInterno = `${prefix}-${rand}`;
         }
-        await base44.entities.Property.create(dataToSave);
+        await api.entities.Property.create(dataToSave);
         toast.success("Propiedad creada");
       }
       onSave?.();
@@ -480,7 +480,7 @@ function PropiedadForm({ open, onOpenChange, propiedad, proveedores, onSave, wor
 }
 
 // ── Card de Propiedad (vista grilla) ────────────────────────
-function PropiedadCard({ propiedad, onEdit, onView, onWhatsApp }) {
+function PropiedadCard({ propiedad, onView }) {
   const estadoObj = ESTADOS_PROPIEDAD.find(e => e.value === propiedad.estado) || ESTADOS_PROPIEDAD[0];
   const precio = propiedad.precioVenta || propiedad.precioAlquiler;
   const moneda = propiedad.moneda === "USD" ? "US$" : "$";
@@ -711,18 +711,18 @@ export default function Propiedades() {
 
   const { data: propiedades = [], isLoading, refetch } = useQuery({
     queryKey: ['propiedades', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Property.filter({ workspace_id: workspace.id }, "-created_date", 500) : [],
+    queryFn: () => workspace ? api.entities.Property.filter({ workspace_id: workspace.id }, "-created_date", 500) : [],
     enabled: !!workspace
   });
 
   const { data: proveedores = [] } = useQuery({
     queryKey: ['propietarios-para-props', workspace?.id],
-    queryFn: () => workspace ? base44.entities.Proveedor.filter({ workspace_id: workspace.id }) : [],
+    queryFn: () => workspace ? api.entities.Proveedor.filter({ workspace_id: workspace.id }) : [],
     enabled: !!workspace
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Property.delete(id),
+    mutationFn: (id) => api.entities.Property.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['propiedades', workspace?.id] });
       toast.success("Propiedad eliminada");
@@ -940,7 +940,6 @@ export default function Propiedades() {
               <PropiedadCard
                 key={prop.id}
                 propiedad={prop}
-                onEdit={handleEdit}
                 onView={handleView}
               />
             ))}

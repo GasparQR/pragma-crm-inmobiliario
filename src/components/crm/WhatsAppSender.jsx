@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Copy, ExternalLink, Check, Sparkles } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { toast } from "sonner";
 import { useWorkspace } from "@/components/context/WorkspaceContext";
 import { addBusinessDays } from "date-fns";
@@ -55,7 +55,7 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
 
   const loadPlantillas = async () => {
     if (!workspace?.id) return;
-    const data = await base44.entities.PlantillaWhatsApp.filter({ activa: true, workspace_id: workspace.id });
+    const data = await api.entities.PlantillaWhatsApp.filter({ activa: true, workspace_id: workspace.id });
     const sorted = [...data].sort((a, b) => getRelevancia(a) - getRelevancia(b));
     setPlantillas(sorted);
     
@@ -114,7 +114,7 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
 
     // 4. Registrar el envío
     try {
-      await base44.entities.EnvioWhatsApp.create({
+      await api.entities.EnvioWhatsApp.create({
         contactoId: consulta.contactoId,
         consultaId: consulta.id,
         contenidoEnviado: msg,
@@ -130,7 +130,7 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
     setLoading(true);
     
     // Crear registro de mensaje
-    await base44.entities.Mensaje.create({
+    await api.entities.Mensaje.create({
       consultaId: consulta.id,
       plantillaId: selectedPlantilla?.id,
       contenidoFinal: mensaje,
@@ -149,7 +149,7 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
     
     // Solo avanzar automáticamente si está en la primera etapa
     if (consulta.etapa && workspace?.id) {
-      const stages = await base44.entities.PipelineStage.filter({ workspace_id: workspace.id, activa: true });
+      const stages = await api.entities.PipelineStage.filter({ workspace_id: workspace.id, activa: true });
       const sorted = [...stages].sort((a, b) => a.orden - b.orden);
       const currentIndex = sorted.findIndex(s => s.nombre === consulta.etapa);
       if (currentIndex === 0 && sorted.length > 1) {
@@ -157,7 +157,7 @@ export default function WhatsAppSender({ open, onOpenChange, consulta, onMessage
       }
     }
 
-    await base44.entities.Consulta.update(consulta.id, updates);
+    await api.entities.Consulta.update(consulta.id, updates);
 
     toast.success("Mensaje registrado correctamente");
     setLoading(false);

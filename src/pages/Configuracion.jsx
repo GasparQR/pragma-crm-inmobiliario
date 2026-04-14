@@ -3,11 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Database, Loader2, Calendar, FileDown, FileSpreadsheet } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/components/hooks/useCurrentUser";
 import { useQueryClient } from "@tanstack/react-query";
@@ -33,7 +32,7 @@ export default function Configuracion() {
   const handleSaveDays = async () => {
     setSavingDays(true);
     try {
-      await base44.auth.updateMe({
+      await api.auth.updateMe({
         consulta_follow_up_days: Number(consultaDays),
         postventa_follow_up_days: Number(postventaDays)
       });
@@ -47,10 +46,10 @@ export default function Configuracion() {
   const fetchAllData = async () => {
     const wsId = workspace?.id;
     const [consultas, contactos, ventas, propiedades] = await Promise.all([
-      base44.entities.Consulta.filter({ workspace_id: wsId }),
-      base44.entities.Contacto.filter({ workspace_id: wsId }),
-      base44.entities.Venta.filter({ workspace_id: wsId }),
-      base44.entities.Property.filter({ workspace_id: wsId }),
+      api.entities.Consulta.filter({ workspace_id: wsId }),
+      api.entities.Contacto.filter({ workspace_id: wsId }),
+      api.entities.Venta.filter({ workspace_id: wsId }),
+      api.entities.Property.filter({ workspace_id: wsId }),
     ]);
     return { consultas, contactos, ventas, propiedades };
   };
@@ -88,7 +87,7 @@ export default function Configuracion() {
       a.click();
       URL.revokeObjectURL(url);
       toast.success("Exportación CSV completada");
-    } catch (e) {
+    } catch {
       toast.error("Error al exportar");
     } finally {
       setExportingCSV(false);
@@ -136,7 +135,7 @@ export default function Configuracion() {
       a.click();
       URL.revokeObjectURL(url);
       toast.success("Exportación Excel completada");
-    } catch (e) {
+    } catch {
       toast.error("Error al exportar");
     } finally {
       setExportingExcel(false);

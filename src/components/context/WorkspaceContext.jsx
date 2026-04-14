@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
-import { createPageUrl } from "@/utils";
+import { supabase } from "@/api/supabaseClient";
 
 const WorkspaceContext = createContext(null);
 
@@ -15,50 +14,28 @@ export function WorkspaceProvider({ children }) {
 
   const bootstrapWorkspace = async () => {
     try {
-      const user = await base44.auth.me();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         setWorkspaceLoading(false);
         return;
       }
 
-      // Buscar membresías del usuario
-      const members = await base44.entities.WorkspaceMember.filter({ user_id: user.email });
+      const { data: wid, error: rpcErr } = await supabase.rpc("ensure_workspace");
+      if (rpcErr) throw rpcErr;
 
-      if (members.length > 0) {
-        // Preferir el workspace donde el usuario es admin
-        const adminMembership = members.find((m) => m.role === "admin") || members[0];
-        const workspaces = await base44.entities.Workspace.filter({ id: adminMembership.workspace_id });
+      const { data: ws, error: wsErr } = await supabase.from("workspaces").select("*").eq("id", wid).single();
+      if (wsErr) throw wsErr;
+      setWorkspace(ws);
 
-        if (workspaces.length > 0) {
-          const ws = workspaces[0];
-          setWorkspace(ws);
-          setWorkspaceMember(adminMembership);
-
-          return;
-        }
-      }
-
-      // Usuario sin workspace → crear uno y redirigir a onboarding
-      const newWorkspace = await base44.entities.Workspace.create({
-        name: user.full_name ? `Workspace de ${user.full_name}` : "Mi Workspace",
-        owner_user_id: user.email,
-        onboarding_completed: false,
-      });
-      const newMember = await base44.entities.WorkspaceMember.create({
-        workspace_id: newWorkspace.id,
-        user_id: user.email,
-        role: "admin",
-      });
-
-      setWorkspace(newWorkspace);
-      setWorkspaceMember(newMember);
-
-      // Auto-inicializar con template inmobiliario
-      try {
-        await base44.functions.invoke("initializeWorkspaceTemplate", {});
-      } catch (e) {
-        console.warn("Error al inicializar template:", e);
-      }
+      const { data: mem } = await supabase
+        .from("workspace_members")
+        .select("*")
+        .eq("workspace_id", wid)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      setWorkspaceMember(mem || null);
     } catch (err) {
       console.error("Error bootstrapping workspace:", err);
     } finally {

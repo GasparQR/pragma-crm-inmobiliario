@@ -1,39 +1,24 @@
-**Welcome to your Base44 project** 
+# Pragma CRM Inmobiliario
 
-**About**
+Frontend Vite + React con datos en **Supabase** (Postgres, Auth, RLS).
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+## Requisitos
 
-This project contains everything you need to run your app locally.
-
-**Edit the code in your local development environment**
-
-Any change pushed to the repo will also be reflected in the Base44 Builder.
-
-**Prerequisites:** 
-
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
+1. Clonar el repositorio e instalar dependencias: `npm install`
+2. Crear un proyecto en [Supabase](https://supabase.com), aplicar las migraciones del directorio `supabase/migrations/` (CLI o SQL Editor)
+3. Copiar `.env.example` a `.env.local` y completar:
 
 ```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
-
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
+VITE_SUPABASE_URL=https://<ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=<anon_key>
 ```
 
-Run the app: `npm run dev`
+4. Desplegar la Edge Function `invite-workspace-member` con `SUPABASE_SERVICE_ROLE_KEY` en los secretos del proyecto (invitaciones por email)
 
-**Publish your changes**
+## Desarrollo
 
-Open [Base44.com](http://Base44.com) and click on Publish.
+`npm run dev`
 
-**Docs & Support**
+## Build
 
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
-
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+`npm run build`

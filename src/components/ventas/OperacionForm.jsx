@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ export default function OperacionForm({ open, onOpenChange, consulta, onOperacio
 
   const { data: miembros = [] } = useQuery({
     queryKey: ['workspace-members-op', workspace?.id],
-    queryFn: () => workspace ? base44.entities.WorkspaceMember.filter({ workspace_id: workspace.id }) : [],
+    queryFn: () => workspace ? api.entities.WorkspaceMember.filter({ workspace_id: workspace.id }) : [],
     enabled: open && !!workspace
   });
 
@@ -138,10 +138,10 @@ export default function OperacionForm({ open, onOpenChange, consulta, onOperacio
       };
 
       if (operacionExistente) {
-        await base44.entities.Venta.update(operacionExistente.id, dataToSave);
+        await api.entities.Venta.update(operacionExistente.id, dataToSave);
         toast.success("Operación actualizada");
       } else {
-        const ops = await base44.entities.Venta.list("-created_date", 1);
+        const ops = await api.entities.Venta.list("-created_date", 1);
         let nuevoCodigo = `OP-${new Date().getFullYear()}-000001`;
         if (ops.length > 0 && ops[0].codigo) {
           const partes = ops[0].codigo.split('-');
@@ -151,13 +151,13 @@ export default function OperacionForm({ open, onOpenChange, consulta, onOperacio
           }
         }
         dataToSave.codigo = nuevoCodigo;
-        await base44.entities.Venta.create(dataToSave);
+        await api.entities.Venta.create(dataToSave);
         toast.success("Operación registrada");
       }
 
       onOperacionCreada?.();
       onOpenChange(false);
-    } catch (error) {
+    } catch {
       toast.error("Error al guardar la operación");
     } finally {
       setSubmitting(false);
@@ -165,7 +165,6 @@ export default function OperacionForm({ open, onOpenChange, consulta, onOperacio
   };
 
   const isTasacion = formData.tipoOperacion === "Tasación";
-  const esBorrador = !operacionExistente;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -337,7 +336,11 @@ export default function OperacionForm({ open, onOpenChange, consulta, onOperacio
                   <Select value={formData.agenteCaptor} onValueChange={(v) => setFormData({ ...formData, agenteCaptor: v })}>
                     <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                     <SelectContent>
-                      {miembros.map(m => <SelectItem key={m.user_id} value={m.user_id}>{m.user_id}</SelectItem>)}
+                      {miembros.map(m => (
+                        <SelectItem key={m.user_id} value={m.user_id}>
+                          {m.full_name || m.email || m.user_id}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <div className="flex items-center gap-2">
@@ -351,7 +354,11 @@ export default function OperacionForm({ open, onOpenChange, consulta, onOperacio
                   <Select value={formData.agenteVendedor} onValueChange={(v) => setFormData({ ...formData, agenteVendedor: v })}>
                     <SelectTrigger><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                     <SelectContent>
-                      {miembros.map(m => <SelectItem key={m.user_id} value={m.user_id}>{m.user_id}</SelectItem>)}
+                      {miembros.map(m => (
+                        <SelectItem key={m.user_id} value={m.user_id}>
+                          {m.full_name || m.email || m.user_id}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <div className="flex items-center gap-2">
